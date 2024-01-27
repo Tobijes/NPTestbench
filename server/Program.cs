@@ -6,7 +6,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddSignalR(); 
 builder.Services.AddSingleton<DataNotifier>();
-
+builder.Services.AddHostedService<DataService>();
 // Add CORS services
 builder.Services.AddCors(options =>
 {
@@ -26,19 +26,6 @@ var app = builder.Build();
 app.UseSwagger();
 app.UseSwaggerUI();
 app.MapHub<DataHub>("/DataHub");
-
-
-var service = new Service();
-
-var cts = new CancellationTokenSource();
-Console.CancelKeyPress += (s, e) =>
-    {
-        Console.WriteLine("Canceling...");
-        cts.Cancel();
-        e.Cancel = true;
-    };
-
-Task.Run(() => service.StartReading(cts.Token));
 
 
 app.UseCors("CorsPolicy");

@@ -10,7 +10,7 @@ function App() {
 
   useEffect(() => {
     const newConnection = new HubConnectionBuilder()
-    .withUrl("http://localhost:5163/DataHub")      
+    .withUrl("http://localhost:5000/DataHub")      
     .withAutomaticReconnect()
       .build();
 

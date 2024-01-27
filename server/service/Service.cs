@@ -1,20 +1,23 @@
 using System.Net.Sockets;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using NModbus;
 using NPTestbench.repository;
 
 
-public class Service : IDisposable
+public class DataService : BackgroundService, IDisposable
 {
 
     TcpClient _client;
     IModbusMaster _master;
+    private readonly IHubContext<DataHub> _hubContext;
 
-    public Service()
+    public DataService(IHubContext<DataHub> hubContext)
     {
         _client = new TcpClient("127.0.0.1", 5020);
         var factory = new ModbusFactory();
         _master = factory.CreateMaster(_client);
+        _hubContext = hubContext;
     }
 
     private byte[] CorrectEndian(byte[] bytes)
@@ -48,7 +51,7 @@ public class Service : IDisposable
         return BitConverter.ToSingle(bytes);
     }
 
-    public async Task StartReading(CancellationToken cancellationToken)
+    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         int runId = 0;
         int deviceId = 0;
@@ -90,7 +93,7 @@ public class Service : IDisposable
 
 
 
-        while (!cancellationToken.IsCancellationRequested)
+        while (!stoppingToken.IsCancellationRequested)
         {
             float value = await ReadValues();
             float faked = value * (DateTime.UtcNow.Millisecond % 5);
@@ -109,17 +112,11 @@ public class Service : IDisposable
                 context.SaveChanges();
             }
 
+            await _hubContext.Clients.All.SendAsync("ReceiveMessage", $"Value: {measurement.Value}");
             Console.WriteLine($"Real: {value}, Faked: {faked}");
             await Task.Delay(1000);
         }
     }
-
-    public void Dispose()
-    {
-        _client.Dispose();
-        _master.Dispose();
-    }
-
 
 
 }
