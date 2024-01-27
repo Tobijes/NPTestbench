@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Data.Sqlite;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace NPTestbench.repository;
 public class DatabaseModel : DbContext
@@ -10,6 +12,11 @@ public class DatabaseModel : DbContext
     public DbSet<Run> Runs { get; set; }
     public DbSet<Device> Devices { get; set; }
     public DbSet<Measurement> Measurements { get; set; }
+
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+   {
+       optionsBuilder.UseSqlite("Data Source=Data.db");
+   }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -68,6 +75,7 @@ public class Run
 {
     public int UniqueID { get; set; }
     public int ConfigurationID { get; set; }
+    
     public DateTime StartTime { get; set; }
     public DateTime? EndTime { get; set; } // Nullable if the run can be ongoing
 }
