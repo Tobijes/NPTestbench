@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 
-namespace NPTestbench.repository;
+namespace NPTestbench.Models;
 public class DataContext : DbContext
 {
     public DbSet<Parameter> Parameters { get; set; }

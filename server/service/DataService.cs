@@ -2,7 +2,7 @@ using System.Net.Sockets;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using NModbus;
-using NPTestbench.repository;
+using NPTestbench.Models;
 
 
 public class DataService : BackgroundService, IDisposable
@@ -10,14 +10,14 @@ public class DataService : BackgroundService, IDisposable
 
     TcpClient _client;
     IModbusMaster _master;
-    private readonly IHubContext<DataHub> _hubContext;
+    private readonly DataNotifier _dataNotifier;
 
-    public DataService(IHubContext<DataHub> hubContext)
+    public DataService(DataNotifier hubContext)
     {
         _client = new TcpClient("127.0.0.1", 5020);
         var factory = new ModbusFactory();
         _master = factory.CreateMaster(_client);
-        _hubContext = hubContext;
+        _dataNotifier = hubContext;
     }
 
     private byte[] CorrectEndian(byte[] bytes)
@@ -112,7 +112,7 @@ public class DataService : BackgroundService, IDisposable
                 context.SaveChanges();
             }
 
-            await _hubContext.Clients.All.SendAsync("ReceiveMessage", $"Value: {measurement.Value}");
+            await _dataNotifier.PublishMessage($"Value: {measurement.Value}");
             Console.WriteLine($"Real: {value}, Faked: {faked}");
             await Task.Delay(1000);
         }

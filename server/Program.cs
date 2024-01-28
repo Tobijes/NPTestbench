@@ -1,3 +1,5 @@
+using Microsoft.AspNetCore.Mvc;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -6,6 +8,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddSignalR(); 
 builder.Services.AddSingleton<DataNotifier>();
+builder.Services.AddSingleton<ConfigurationService>();;
 builder.Services.AddHostedService<DataService>();
 // Add CORS services
 builder.Services.AddCors(options =>
@@ -19,14 +22,24 @@ builder.Services.AddCors(options =>
     });
 });
 
+builder.Services.AddControllers(options =>
+{
+    options.Filters.Add(new ProducesAttribute("application/json"));
+});
+
+builder.Services.AddRouting(options => options.LowercaseUrls = true);
+
 var app = builder.Build();
 
-
-
 app.UseSwagger();
-app.UseSwaggerUI();
-app.MapHub<DataHub>("/DataHub");
+app.UseSwaggerUI(options =>
+{
+    options.SwaggerEndpoint("/swagger/v1/swagger.json", "v1");
+    options.RoutePrefix = string.Empty;
+});
 
+app.MapHub<DataHub>("/DataHub");
+app.MapControllers();
 
 app.UseCors("CorsPolicy");
 

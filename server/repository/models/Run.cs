@@ -2,7 +2,7 @@ using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace NPTestbench.repository;
+namespace NPTestbench.Models;
 
 public class Run
 {
