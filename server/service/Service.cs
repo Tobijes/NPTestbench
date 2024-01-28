@@ -55,7 +55,7 @@ public class DataService : BackgroundService, IDisposable
     {
         int runId = 0;
         int deviceId = 0;
-        using (var context = new DatabaseModel())
+        using (var context = new DataContext())
         {
             context.Database.EnsureCreated();
             context.ChangeTracker.AutoDetectChangesEnabled = false;
@@ -71,7 +71,7 @@ public class DataService : BackgroundService, IDisposable
 
             var run = new Run()
             {
-                ConfigurationID = configuration.UniqueID,
+                ConfigurationId = configuration.Id,
                 StartTime = DateTime.Now
             };
             context.Runs.Add(run);
@@ -82,13 +82,13 @@ public class DataService : BackgroundService, IDisposable
                 Name = "MyDevice",
                 ProtocolID = "MyProtocol",
                 DrawingID = "Sensor1",
-                ConfigurationID = configuration.UniqueID
+                ConfigurationId = configuration.Id
             };
             context.Devices.Add(device);
             context.SaveChanges();
 
-            runId = run.UniqueID;
-            deviceId = device.UniqueID;
+            runId = run.Id;
+            deviceId = device.Id;
         }
 
 
@@ -100,13 +100,13 @@ public class DataService : BackgroundService, IDisposable
 
             var measurement = new Measurement()
             {
-                DeviceID = deviceId,
-                RunID = runId,
+                DeviceId = deviceId,
+                RunId = runId,
                 Timestamp = DateTime.Now,
                 Value = faked
             };
 
-            using (var context = new DatabaseModel())
+            using (var context = new DataContext())
             {
                 context.Measurements.Add(measurement);
                 context.SaveChanges();
