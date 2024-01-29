@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Mvc;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -6,9 +7,9 @@ var builder = WebApplication.CreateBuilder(args);
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-builder.Services.AddSignalR(); 
+builder.Services.AddSignalR();
 builder.Services.AddSingleton<DataNotifier>();
-builder.Services.AddSingleton<ConfigurationService>();;
+builder.Services.AddSingleton<ConfigurationService>(); ;
 builder.Services.AddHostedService<DataService>();
 // Add CORS services
 builder.Services.AddCors(options =>
@@ -25,6 +26,9 @@ builder.Services.AddCors(options =>
 builder.Services.AddControllers(options =>
 {
     options.Filters.Add(new ProducesAttribute("application/json"));
+}).AddJsonOptions(options =>
+{
+    options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
 });
 
 builder.Services.AddRouting(options => options.LowercaseUrls = true);

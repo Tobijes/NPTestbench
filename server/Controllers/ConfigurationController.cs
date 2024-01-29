@@ -15,6 +15,19 @@ public class ConfigurationController : ControllerBase
         _configurationService = configurationService;
     }
 
+    [HttpGet("{id}")]
+    public async Task<Configuration> GetConfiguration(int id)
+    {
+        var configuration = await _configurationService.Get(id);
+        return configuration;
+    }
+
+    [HttpGet("List")]
+    public async Task<List<Configuration>> ListConfigurations()
+    {
+        var configurations = await _configurationService.List();
+        return configurations;
+    }
 
     public class CreateConfigurationRequest
     {
@@ -29,17 +42,15 @@ public class ConfigurationController : ControllerBase
 
     public class AddParameterRequest
     {
-
-        public int ConfigurationId { get; set; }
         public string Name { get; set; }
         public string Value { get; set; }
     }
-    // Does not work, creates cycle
-    // [HttpPost("Parameter")]
-    // public Task<Configuration> AddParameter(AddParameterRequest input)
-    // {
-    //     var configuration = _configurationService.AddParameter(input.ConfigurationId, input.Name, input.Value);
-    //     return configuration;
-    // }
+
+    [HttpPost("{configurationId}/Parameter")]
+    public Task<Configuration> AddParameter(int configurationId, AddParameterRequest input)
+    {
+        var configuration = _configurationService.AddParameter(configurationId, input.Name, input.Value);
+        return configuration;
+    }
 
 }
