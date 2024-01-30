@@ -9,8 +9,11 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddSignalR();
 builder.Services.AddSingleton<DataNotifier>();
-builder.Services.AddSingleton<ConfigurationService>(); ;
-builder.Services.AddHostedService<DataService>();
+builder.Services.AddSingleton<ConfigurationService>();
+builder.Services.AddSingleton<CommunicationService>();
+
+builder.Services.AddSingleton<DataService>();
+builder.Services.AddHostedService<DataService>(p => p.GetRequiredService<DataService>());
 // Add CORS services
 builder.Services.AddCors(options =>
 {

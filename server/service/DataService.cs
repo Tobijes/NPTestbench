@@ -1,60 +1,29 @@
-using System.Net.Sockets;
-using Microsoft.AspNetCore.SignalR;
-using Microsoft.EntityFrameworkCore;
-using NModbus;
 using NPTestbench.Models;
-
 
 public class DataService : BackgroundService, IDisposable
 {
 
-    TcpClient _client;
-    IModbusMaster _master;
+    private readonly ConfigurationService _configurationService;
     private readonly DataNotifier _dataNotifier;
+    private readonly CommunicationService _communcationService;
 
-    public DataService(DataNotifier hubContext)
-    {
-        _client = new TcpClient("127.0.0.1", 5020);
-        var factory = new ModbusFactory();
-        _master = factory.CreateMaster(_client);
-        _dataNotifier = hubContext;
-    }
+    private const int SAMPLE_DELAY_LOW = 1000 / 1;
+    private const int SAMPLE_DELAY_HIGH = 1000 / 3;
+    private int? _runId;
 
-    private byte[] CorrectEndian(byte[] bytes)
+    public DataService(ConfigurationService configurationService, DataNotifier dataNotifier, CommunicationService communicationService)
     {
-        if (BitConverter.IsLittleEndian)
-        {
-            Array.Reverse(bytes);
-        }
-        // Console.WriteLine(string.Join(" ", bytes));
-        return bytes;
-    }
-    private byte[] ConvertUShortsToBytes(ushort[] ushorts)
-    {
-        // Console.WriteLine(string.Join(" ", ushorts));
-        byte[] bytes = new byte[ushorts.Length * 2];
-        for (int i = 0; i < ushorts.Length; i++)
-        {
-            var bs = BitConverter.GetBytes(ushorts[i]);
-            bytes[i * 2] = bs[0];
-            bytes[i * 2 + 1] = bs[1];
-        }
-        // Console.WriteLine(string.Join(" ", bytes));
-        return bytes;
+        _configurationService = configurationService;
+        _dataNotifier = dataNotifier;
+        _communcationService = communicationService;
     }
 
-    public async Task<float> ReadValues()
-    {
-        var words = await _master.ReadHoldingRegistersAsync(1, 0, 2);
-        var bytes = ConvertUShortsToBytes(words);
-        bytes = CorrectEndian(bytes);
-        return BitConverter.ToSingle(bytes);
-    }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        int runId = 0;
-        int deviceId = 0;
+        Device[] devices = (await _configurationService.GetActiveConfiguration()).Devices.ToArray();
+        int? lastRunId = null;
+
         using (var context = new DataContext())
         {
             context.Database.EnsureCreated();
@@ -80,42 +49,83 @@ public class DataService : BackgroundService, IDisposable
             var device = new Device()
             {
                 Name = "MyDevice",
-                ProtocolID = "MyProtocol",
+                StartAddress = 0,
+                DataType = DeviceDataType.Float32,
                 DrawingID = "Sensor1",
                 ConfigurationId = configuration.Id
             };
             context.Devices.Add(device);
             context.SaveChanges();
-
-            runId = run.Id;
-            deviceId = device.Id;
         }
-
 
 
         while (!stoppingToken.IsCancellationRequested)
         {
-            float value = await ReadValues();
-            float faked = value * (DateTime.UtcNow.Millisecond % 5);
-
-            var measurement = new Measurement()
-            {
-                DeviceId = deviceId,
-                RunId = runId,
-                Timestamp = DateTime.Now,
-                Value = faked
-            };
-
-            using (var context = new DataContext())
-            {
-                context.Measurements.Add(measurement);
-                context.SaveChanges();
+            if (_runId != null && lastRunId == null ) { // Run Started
+                // Refresh devices (make event-based instead)
+                devices = (await _configurationService.GetActiveConfiguration()).Devices.ToArray();
             }
 
-            await _dataNotifier.PublishMessage($"Value: {measurement.Value}");
-            Console.WriteLine($"Real: {value}, Faked: {faked}");
-            await Task.Delay(1000);
+            float[] values = await _communcationService.ReadDevices(devices);
+
+            // Only save to log if we are running
+            if (_runId != null)
+            {
+                DateTime timestamp = DateTime.Now;
+                using (var context = new DataContext())
+                {
+                    for (int i = 0; i < devices.Length; i++)
+                    {
+                        var measurement = new Measurement()
+                        {
+                            DeviceId = devices[i].Id,
+                            RunId = (int)_runId,
+                            Timestamp = timestamp,
+                            Value = values[i]
+                        };
+                        context.Measurements.Add(measurement);
+                    }
+                    context.SaveChanges();
+                }
+            }
+
+             for (int i = 0; i < devices.Length; i++) {
+                await _dataNotifier.PublishMessage($"Device: {devices[i]} Value: {values[i]}");
+                Console.WriteLine($"Device: {devices[i].Name} Value: {values[i]}");
+             }
+
+            
+            await Task.Delay(_runId != null ? SAMPLE_DELAY_HIGH : SAMPLE_DELAY_LOW);
         }
+    }
+
+    public async Task<Run> StartRun()
+    {  
+        var configuration = await _configurationService.GetActiveConfiguration();
+        using var context = new DataContext();
+        var run = new Run()
+        {
+            StartTime = DateTime.Now,
+            ConfigurationId = configuration.Id
+        };
+        context.Runs.Add(run);
+        await context.SaveChangesAsync();
+        _runId = run.Id;
+        return run;
+    }
+
+    public async Task<Run> StopRun()
+    {
+        // Stop logging
+        var oldRunId = _runId;
+        _runId = null;
+
+        // Save run end
+        using var context = new DataContext();
+        var run = await context.Runs.FindAsync(oldRunId) ?? throw new Exception("Configuration ID did not exist");
+        run.EndTime = DateTime.Now;
+        await context.SaveChangesAsync();
+        return run;
     }
 
 
