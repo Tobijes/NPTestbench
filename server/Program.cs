@@ -1,5 +1,6 @@
 using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Mvc;
+using NPTestbench.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,7 +12,7 @@ builder.Services.AddSignalR();
 builder.Services.AddSingleton<DataNotifier>();
 builder.Services.AddSingleton<ConfigurationService>();
 builder.Services.AddSingleton<CommunicationService>();
-
+builder.Services.AddSingleton<DataContext>();
 builder.Services.AddSingleton<DataService>();
 builder.Services.AddHostedService<DataService>(p => p.GetRequiredService<DataService>());
 // Add CORS services
@@ -37,7 +38,12 @@ builder.Services.AddControllers(options =>
 builder.Services.AddRouting(options => options.LowercaseUrls = true);
 
 var app = builder.Build();
-
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    var context = services.GetRequiredService<DataContext>();
+    context.Database.EnsureCreated(); 
+}
 app.UseSwagger();
 app.UseSwaggerUI(options =>
 {

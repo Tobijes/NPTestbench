@@ -9,7 +9,8 @@ public class ConfigurationService
     public ConfigurationService()
     {
         using var context = new DataContext();
-        var defaultConfiguration = context.Configurations.First();
+        
+        var defaultConfiguration = context.Configurations.FirstOrDefault();
         if (defaultConfiguration == null)
         {
             defaultConfiguration = new Configuration()
