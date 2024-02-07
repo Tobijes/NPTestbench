@@ -5,12 +5,14 @@ import SendBox from './components/SendBox';
 import TopBar from './components/TopBar';
 import { Box, ScopedCssBaseline } from '@mui/material';
 import CssBaseline from '@mui/material/CssBaseline';
+import ConfigurationProvider from './providers/ConfigurationProvider';
 
 function App() {
 
   return (
     <React.Fragment>
       <CssBaseline />
+      <ConfigurationProvider>
       <DataStreamProvider>
         <Box>
           <TopBar />
@@ -18,8 +20,8 @@ function App() {
           <SendBox />
         </Box>
       </DataStreamProvider>
+      </ConfigurationProvider>
     </React.Fragment>
-
   );
 }
 

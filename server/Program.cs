@@ -20,7 +20,7 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("CorsPolicy", policy =>
     {
-        policy.WithOrigins("http://localhost:5173") // Replace with your React app's origin
+        policy.WithOrigins("http://localhost:5173", "http://127.0.0.1:5173") // Replace with your React app's origin
               .AllowAnyMethod()
               .AllowAnyHeader()
               .AllowCredentials(); // Necessary for SignalR

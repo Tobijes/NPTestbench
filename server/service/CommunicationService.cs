@@ -9,9 +9,18 @@ public class CommunicationService
 
     public CommunicationService()
     {
-        _client = new TcpClient("127.0.0.1", 5020);
-        var factory = new ModbusFactory();
-        _master = factory.CreateMaster(_client);
+       
+        try
+        {
+            _client = new TcpClient("127.0.0.1", 5020);
+            var factory = new ModbusFactory();
+            _master = factory.CreateMaster(_client);
+
+        }
+        catch (Exception e)
+        {
+            System.Console.WriteLine("TCP client failed to connect");
+        }
     }
 
     ushort NumberOfWords(DeviceDataType dataType) => dataType switch

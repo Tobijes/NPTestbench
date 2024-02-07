@@ -1,4 +1,4 @@
-import React, { useState, useEffect, createContext, useContext } from 'react';
+import { useState, useEffect, createContext, useContext } from 'react';
 import { HubConnectionBuilder, HubConnectionState } from '@microsoft/signalr';
 import PropTypes from 'prop-types';
 
