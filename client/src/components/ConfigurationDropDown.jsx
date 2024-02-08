@@ -7,28 +7,33 @@ import Select from '@mui/material/Select';
 import { useConfigurationContext } from '../providers/ConfigurationProvider';
 
 export default function ConfigurationDropDown() {
-    const [age, setAge] = React.useState('');
-
+  // const [config, setActiveConfig] = React.useState('');
+    const { state, setState , configs} = useConfigurationContext(); // Destructure to get state and setState
     const handleChange = (event) => {
-        setAge(event.target.value);
+        const selectedConfigId = event.target.value;     
+        const selectedConfig = configs.find(config => config.id.toString() == selectedConfigId);
+        if (selectedConfig) {
+            setState(selectedConfig);
+            console.log(selectedConfig.name);
+        }
     };
-    const configContext = useConfigurationContext();
-
     return (
-    <Box sx={{ minWidth: 120 }}>
-        <FormControl fullWidth>
-            <InputLabel id="configuration-select-label">Configuration</InputLabel>
-            <Select
-                labelId="configuration-select-label"
-                id="demo-simple-select"
-                value={age}
-                label="Age"
-                onChange={handleChange}
-            >
-                <MenuItem value={10}>Ten</MenuItem>
-                <MenuItem value={20}>Twenty</MenuItem>
-                <MenuItem value={30}>Thirty</MenuItem>
-            </Select>
-        </FormControl>
-    </Box>)
+        <Box sx={{ minWidth: 120 }}>
+            <FormControl fullWidth>
+                <InputLabel id="configuration-select-label">Configuration</InputLabel>
+                <Select
+                    labelId="configuration-select-label"
+                    id="demo-simple-select"
+                    value={state ? state.id : ''}
+                    label="Configuration"
+                    onChange={handleChange}
+                >
+                    {/* Dynamically create MenuItems from your context state */}
+                    {configs && configs.map((item, index) => (
+                        <MenuItem key={index} value={item.id}>{item.name}</MenuItem>
+                    ))}
+                </Select>
+            </FormControl>
+        </Box>
+    );
 }

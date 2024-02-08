@@ -9,7 +9,7 @@ public class ConfigurationService
     public ConfigurationService()
     {
         using var context = new DataContext();
-        
+
         var defaultConfiguration = context.Configurations.FirstOrDefault();
         if (defaultConfiguration == null)
         {
@@ -36,8 +36,18 @@ public class ConfigurationService
         return configuration;
     }
 
+    public async Task<Configuration> SetActiveConfig(int id)
+    {
+        using var context = new DataContext();
+        var configuration = await context.Configurations
+            .Include(configuration => configuration.Parameters)
+            .Include(configuration => configuration.Devices)
+            .FirstAsync(c => c.Id == id) ?? throw new Exception("Configuration ID did not exist");
+        return configuration;
+    }
+
     public async Task<Configuration> GetActiveConfiguration()
-    {   
+    {
         using var context = new DataContext();
         var configuration = await context.Configurations
             .Include(configuration => configuration.Parameters)
