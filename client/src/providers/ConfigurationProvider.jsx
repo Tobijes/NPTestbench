@@ -39,7 +39,9 @@ const ConfigurationProvider = (props) => {
         }
     }, [state]); // Run this effect when `state` changes*/
 
-
+    useEffect(() => {
+        console.log(state); // Outputs the new state value
+    }, [state]); 
 
     useEffect(() => {
         const fetchActiveConfig = async () => {

@@ -14,7 +14,6 @@ export default function ConfigurationDropDown() {
         const selectedConfig = configs.find(config => config.id.toString() == selectedConfigId);
         if (selectedConfig) {
             setState(selectedConfig);
-            console.log(selectedConfig.name);
         }
     };
     return (
