@@ -18,7 +18,7 @@ const SendBox = () => {
       <div className="messages">
         <h2>Messages</h2>
         {dataStreamContext.messages.map((m, index) => (
-          <p key={index}>{m.message}</p>
+          <p key={index}>DeviceId: {m.deviceId}, Value: {m.value}</p>
         ))}
       </div>
     </div>

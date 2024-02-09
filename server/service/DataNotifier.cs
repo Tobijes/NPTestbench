@@ -9,7 +9,13 @@ public class DataNotifier
         _hubContext = hubContext;
     }
 
-    public async Task PublishMessage(string message)
+    public class DataMessage {
+        public int DeviceId {get; set;}
+        public string? DrawingId { get; set; }
+        public float Value {get; set;}
+    }
+
+    public async Task PublishMessage(DataMessage message)
     {
         await _hubContext.Clients.All.SendAsync("ReceiveMessage", message);
     }

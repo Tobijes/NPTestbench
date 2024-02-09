@@ -61,7 +61,8 @@ public class DataService : BackgroundService, IDisposable
 
         while (!stoppingToken.IsCancellationRequested)
         {
-            if (_runId != null && lastRunId == null ) { // Run Started
+            if (_runId != null && lastRunId == null)
+            { // Run Started
                 // Refresh devices (make event-based instead)
                 devices = (await _configurationService.GetActiveConfiguration()).Devices.ToArray();
             }
@@ -89,18 +90,21 @@ public class DataService : BackgroundService, IDisposable
                 }
             }
 
-             for (int i = 0; i < devices.Length; i++) {
-                await _dataNotifier.PublishMessage($"Device: {devices[i]} Value: {values[i]}");
-                Console.WriteLine($"Device: {devices[i].Name} Value: {values[i]}");
-             }
+            for (int i = 0; i < devices.Length; i++)
+            {
+                await _dataNotifier.PublishMessage(new DataNotifier.DataMessage() { 
+                    DeviceId = devices[i].Id, Value = values[i], DrawingId = devices[i].DrawingID
+                });
+                Console.WriteLine($"Device: {devices[i].Name} ({devices[i].DrawingID}) Value: {values[i]}");
+            }
 
-            
+
             await Task.Delay(_runId != null ? SAMPLE_DELAY_HIGH : SAMPLE_DELAY_LOW);
         }
     }
 
     public async Task<Run> StartRun()
-    {  
+    {
         var configuration = await _configurationService.GetActiveConfiguration();
         using var context = new DataContext();
         var run = new Run()
