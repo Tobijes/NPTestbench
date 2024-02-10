@@ -24,40 +24,6 @@ public class DataService : BackgroundService, IDisposable
         Device[] devices = (await _configurationService.GetActiveConfiguration()).Devices.ToArray();
         int? lastRunId = null;
 
-        using (var context = new DataContext())
-        {
-            context.Database.EnsureCreated();
-            context.ChangeTracker.AutoDetectChangesEnabled = false;
-
-            var configuration = new Configuration()
-            {
-                Name = "MyName",
-                CreatedAt = DateTime.Now,
-                UpdatedAt = DateTime.Now,
-            };
-            context.Configurations.Add(configuration);
-            context.SaveChanges();
-
-            var run = new Run()
-            {
-                ConfigurationId = configuration.Id,
-                StartTime = DateTime.Now
-            };
-            context.Runs.Add(run);
-            context.SaveChanges();
-
-            var device = new Device()
-            {
-                Name = "MyDevice",
-                StartAddress = 0,
-                DataType = DeviceDataType.Float32,
-                DrawingID = "Sensor1",
-                ConfigurationId = configuration.Id
-            };
-            context.Devices.Add(device);
-            context.SaveChanges();
-        }
-
 
         while (!stoppingToken.IsCancellationRequested)
         {

@@ -21,9 +21,31 @@ public class ConfigurationService
             };
             context.Configurations.Add(defaultConfiguration);
             context.SaveChanges();
+
+            var device = new Device()
+            {
+                Name = "DefaultDevice1",
+                StartAddress = 0,
+                DataType = DeviceDataType.Float32,
+                DrawingID = "Temp1",
+                ConfigurationId = defaultConfiguration.Id
+            };
+
+            var device2 = new Device()
+            {
+                Name = "DefaultDevice2",
+                StartAddress = 0,
+                DataType = DeviceDataType.Float32,
+                DrawingID = "Pres1",
+                ConfigurationId = defaultConfiguration.Id
+            };
+            context.Devices.Add(device);
+            context.Devices.Add(device2);
+            
+            context.SaveChanges();
         }
 
-        _activeConfiguration = defaultConfiguration;
+        _activeConfiguration = context.Configurations.FirstOrDefault()!;
     }
 
     public async Task<Configuration> GetById(int id)

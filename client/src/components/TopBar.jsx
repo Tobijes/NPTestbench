@@ -5,6 +5,8 @@ import ConfigurationDropDown from './ConfigurationDropDown';
 import { Link, NavLink } from 'react-router-dom';
 import EditIcon from '@mui/icons-material/Edit';
 
+import NorthPropulsionLogo from '../assets/north_propulsion.png'
+
 const TopBar = () => {
 
 
@@ -22,11 +24,18 @@ const TopBar = () => {
             <MenuIcon />
           </IconButton> */}
 
-          <Typography variant="h6" component={Link} sx={{ textDecoration: 'none', fontWeight:"bold", color:"inherit" }} >
-            NPTestbench
-          </Typography>
+          <Link to="/">
+            <Box
+              component="img"
+              sx={{
+                height: 40,
+              }}
+              alt="North Propulsion Logo"
+              src={NorthPropulsionLogo}
+            />
+          </Link>
 
-          <Box sx={{ ml: 2 }}>
+          <Box sx={{ ml: 8 }}>
             <ConfigurationDropDown />
           </Box>
           <IconButton

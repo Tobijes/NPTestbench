@@ -18,12 +18,14 @@ const MainPage = () => {
           </Stack>
           <Diagram />
         </Stack>
-        <Box>
+        <Stack spacing={2}>
           <Typography variant='h4'>
             Run
           </Typography>
-          <Button variant='contained'>Start Run</Button>
-        </Box>
+          <Box>
+            <Button variant='contained'>Start Run</Button>
+          </Box>
+        </Stack>
       </Stack>
 
       <Stack spacing={2}>
@@ -31,8 +33,8 @@ const MainPage = () => {
           Commands
         </Typography>
         <Stack spacing={2} divider={<Divider orientation="horizontal" flexItem />}>
-          <ValveLine device={{name: "Valve 1"}}/>
-          <ValveLine device={{name: "Valve 2"}}/>
+          <ValveLine device={{ name: "Valve 1" }} />
+          <ValveLine device={{ name: "Valve 2" }} />
         </Stack>
       </Stack>
     </Stack>

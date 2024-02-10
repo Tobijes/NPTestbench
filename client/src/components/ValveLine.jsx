@@ -27,7 +27,7 @@ const ValveLine = ({ device }) => {
 }
 
 ValveLine.propTypes = {
-    device: PropTypes.node.isRequired,
+    device: PropTypes.object.isRequired,
 };
 
 export default ValveLine;
