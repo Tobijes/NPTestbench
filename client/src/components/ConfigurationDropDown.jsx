@@ -17,7 +17,7 @@ export default function ConfigurationDropDown() {
         }
     };
     return (
-        <Box sx={{ minWidth: 120 }}>
+        <Box sx={{ minWidth: 250 }}>
             <FormControl fullWidth>
                 <InputLabel id="configuration-select-label">Configuration</InputLabel>
                 <Select
@@ -26,6 +26,7 @@ export default function ConfigurationDropDown() {
                     value={state ? state.id : ''}
                     label="Configuration"
                     onChange={handleChange}
+                    sx={{height: 40, color:"primary"}} 
                 >
                     {/* Dynamically create MenuItems from your context state */}
                     {configs && configs.map((item, index) => (

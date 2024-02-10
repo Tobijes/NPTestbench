@@ -1,12 +1,26 @@
 import React from 'react';
 import DataStreamProvider from './providers/DataStreamProvider';
 import './App.css'
-import SendBox from './components/SendBox';
 import TopBar from './components/TopBar';
 import { Box, ScopedCssBaseline } from '@mui/material';
+import { createBrowserRouter, createRoutesFromElements, Outlet, Route, RouterProvider, Routes } from 'react-router-dom';
 import CssBaseline from '@mui/material/CssBaseline';
 import ConfigurationProvider from './providers/ConfigurationProvider';
 import Diagram from './components/Diagram';
+import MainPage from './pages/MainPage';
+import ConfigurationPage from './pages/ConfigurationPage';
+import RootPage from './pages/Root';
+
+export const router = createBrowserRouter(
+  createRoutesFromElements(
+    <>
+      <Route path="/" element={<RootPage />}>
+        <Route path="/" element={<MainPage />} />
+        <Route path="/configuration" element={<ConfigurationPage />} />
+      </Route>
+    </>
+  )
+);
 
 function App() {
 
@@ -14,14 +28,9 @@ function App() {
     <React.Fragment>
       <CssBaseline />
       <ConfigurationProvider>
-      <DataStreamProvider>
-        <Box>
-          <TopBar />
-          <Diagram />
-          <h1>SignalR Demo</h1>
-          <SendBox />
-        </Box>
-      </DataStreamProvider>
+        <DataStreamProvider>
+          <RouterProvider router={router} />
+        </DataStreamProvider>
       </ConfigurationProvider>
     </React.Fragment>
   );

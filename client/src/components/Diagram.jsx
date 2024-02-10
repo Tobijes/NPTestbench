@@ -49,9 +49,11 @@ const FixedDevices = [
 const Diagram = () => {
 
     const dataStreamContext = useDataStreamContext();
+    const width = 800;
+    const height = 600;
     return (
         <div >
-            <svg width="400" height="300" viewBox="0 0 400 300" style={{backgroundColor: "blue"}}>
+            <svg width={width} height={height} viewBox={`0 0 ${width} ${height}`} style={{backgroundColor: "blue"}}>
                 <circle cx={40} cy={40} r={30} fill="red" />
                 {FixedDevices.map((device) => {
                     if (device.drawingId in dataStreamContext.devices) {
