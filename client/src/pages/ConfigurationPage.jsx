@@ -15,10 +15,10 @@ const Item = styled(Paper)(({ theme }) => ({
 
 const ConfigurationPage = () => {
     return  <Grid container spacing={2}>
-    <Grid item xs={6}>
+    <Grid item xs={2}>
       <Item>xs=8</Item>
     </Grid>
-    <Grid item xs={6}>
+    <Grid item xs={10}>
       <Box>
           <ParameterList/>
       </Box>

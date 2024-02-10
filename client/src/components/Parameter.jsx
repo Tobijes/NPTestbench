@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Box, TextField, IconButton, Container, Button } from '@mui/material';
+import { Box, TextField, IconButton, Container, Button, Grid } from '@mui/material';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import HighlightOffIcon from '@mui/icons-material/HighlightOff';
 
@@ -64,26 +64,35 @@ const ParameterList = () => {
     };
 
     return (
-        <Container maxWidth="sm">
-            <Box display="flex" flexWrap="wrap" justifyContent="space-between" alignItems="center" marginBottom={2} marginRight={10}>
+        <Container>
+            <Box display="flex" flexWrap="wrap" alignItems="center" marginBottom={2} >
                 <h3>Parameters</h3>
-                <IconButton onClick={addParameter} color="primary">
-                    <AddCircleOutlineIcon />
-                </IconButton>
+                <Box marginLeft={2}>
+                    <IconButton onClick={addParameter} color="primary" >
+                        <AddCircleOutlineIcon />
+                    </IconButton>
+                </Box>
             </Box>
-            {parameters.map((param) => (
-                <ParameterInput
-                    key={param.id}
-                    paramName={param.name}
-                    paramValue={param.value}
-                    onParamChange={(data) => handleParamChange(param.id, data)}
-                    onRemove={() => removeParameter(param.id)}
-                />
-            ))}
-            <Button onClick={saveParameters} color="primary" variant="contained">
-                Save All
-            </Button>
+            <Grid container spacing={2}>
+                {parameters.map((param) => (
+                    <Grid item xs={12} sm={12} md={4} key={param.id}>
+                        <ParameterInput
+                            paramName={param.name}
+                            paramValue={param.value}
+                            onParamChange={(data) => handleParamChange(param.id, data)}
+                            onRemove={() => removeParameter(param.id)}
+                        />
+                    </Grid>
+                ))}
+            </Grid>
+            <Box display="flex" justifyContent="flex-end" marginTop={2}> 
+                <Button onClick={saveParameters} color="primary" variant="contained">
+                    Save All
+                </Button>
+            </Box>
+  
         </Container>
+
     );
 };
 
