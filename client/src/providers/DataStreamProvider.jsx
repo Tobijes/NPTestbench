@@ -6,8 +6,8 @@ import PropTypes from 'prop-types';
 
 const DataStreamProvider = (props) => {
   const [connection, setConnection] = useState(null);
-  const [messages, setMessages] = useState([]);
-  const [devices, setDevices] = useState({})
+  const [deviceStates, setDeviceStates] = useState({})
+  const [runId, setRunId] = useState(undefined);
 
   useEffect(() => {
     const newConnection = new HubConnectionBuilder()
@@ -25,9 +25,9 @@ const DataStreamProvider = (props) => {
         try {
           await connection.start();
           console.log('SignalR Connected!');
-          connection.on("ReceiveMessage", (message) => {
-            setMessages(messages => [message, ...messages]);
-            setDevices(devices => ({...devices, [message.drawingId]: message.value}));
+          connection.on("DataState", (dataState) => {
+            setRunId(dataState.runId);
+            setDeviceStates(dataState.deviceStates);
           });
 
         } catch (error) {
@@ -38,23 +38,10 @@ const DataStreamProvider = (props) => {
     setupConnection();
   }, [connection]);
 
-  const sendMessage = async (message) => {
-    if (connection.state === HubConnectionState.Connected) {
-      try {
-        await connection.send("SendMessage", message);
-      } catch (e) {
-        console.error(e);
-      }
-    } else {
-      alert("No connection to server yet.");
-    }
-  };
-
   return (
     <DataStreamContext.Provider value={{
-      messages,
-      devices,
-      sendMessage
+      deviceStates,
+      runId,
     }}>
       {props.children}
     </DataStreamContext.Provider>

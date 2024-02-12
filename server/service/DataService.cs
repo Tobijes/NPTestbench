@@ -11,11 +11,14 @@ public class DataService : BackgroundService, IDisposable
     private const int SAMPLE_DELAY_HIGH = 1000 / 3;
     private int? _runId;
 
+    private DataNotifier.DataState _dataState;
+
     public DataService(ConfigurationService configurationService, DataNotifier dataNotifier, CommunicationService communicationService)
     {
         _configurationService = configurationService;
         _dataNotifier = dataNotifier;
         _communcationService = communicationService;
+        _dataState = new DataNotifier.DataState();
     }
 
 
@@ -29,7 +32,7 @@ public class DataService : BackgroundService, IDisposable
         {
             if (_runId != null && lastRunId == null)
             { // Run Started
-                // Refresh devices (make event-based instead)
+                // TODO: Refresh devices (make event-based instead)
                 devices = (await _configurationService.GetActiveConfiguration()).Devices.ToArray();
             }
 
@@ -58,12 +61,21 @@ public class DataService : BackgroundService, IDisposable
 
             for (int i = 0; i < devices.Length; i++)
             {
-                await _dataNotifier.PublishMessage(new DataNotifier.DataMessage() { 
-                    DeviceId = devices[i].Id, Value = values[i], DrawingId = devices[i].DrawingID
-                });
-                Console.WriteLine($"Device: {devices[i].Name} ({devices[i].DrawingID}) Value: {values[i]}");
-            }
+                int id = devices[i].Id;
+                if (!_dataState.DeviceStates.ContainsKey(id)) {
+                    _dataState.DeviceStates.Add(id, new DataNotifier.DeviceState(){
+                        Id = id,
+                        Name = devices[i].Name,    
+                        DrawingId = devices[i].DrawingID,    
+                    });
+                }
 
+                _dataState.DeviceStates[id].Value = values[i];
+                _dataState.DeviceStates[id].ValueRunMaximum = Math.Max(_dataState.DeviceStates[id].ValueRunMaximum, values[i]);
+                _dataState.DeviceStates[id].ValueRunMinimum = Math.Min(_dataState.DeviceStates[id].ValueRunMinimum, values[i]);
+            }
+            // TODO: Should not be published on every read
+            await PublishDataState();
 
             await Task.Delay(_runId != null ? SAMPLE_DELAY_HIGH : SAMPLE_DELAY_LOW);
         }
@@ -71,6 +83,9 @@ public class DataService : BackgroundService, IDisposable
 
     public async Task<Run> StartRun()
     {
+        if (_runId != null) {
+            throw new Exception("Already running");
+        }
         var configuration = await _configurationService.GetActiveConfiguration();
         using var context = new DataContext();
         var run = new Run()
@@ -81,6 +96,8 @@ public class DataService : BackgroundService, IDisposable
         context.Runs.Add(run);
         await context.SaveChangesAsync();
         _runId = run.Id;
+        Console.WriteLine($"{DateTime.Now}: Started run");
+        await PublishDataState();
         return run;
     }
 
@@ -95,7 +112,15 @@ public class DataService : BackgroundService, IDisposable
         var run = await context.Runs.FindAsync(oldRunId) ?? throw new Exception("Configuration ID did not exist");
         run.EndTime = DateTime.Now;
         await context.SaveChangesAsync();
+        Console.WriteLine($"{DateTime.Now}: Stopped run");
+        await PublishDataState();
         return run;
+    }
+
+    private async Task PublishDataState() {
+        _dataState.RunId = _runId;
+        await _dataNotifier.PublishDataState(_dataState);
+        Console.WriteLine($"{DateTime.Now}: Published data state");
     }
 
 

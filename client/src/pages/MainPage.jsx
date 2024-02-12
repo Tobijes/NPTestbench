@@ -3,6 +3,8 @@ import { Box, Button, Container, Divider, Grid, Stack, Typography } from '@mui/m
 import React from 'react';
 import Diagram from '../components/Diagram';
 import ValveLine from '../components/ValveLine';
+import RunPanel from '../components/RunPanel';
+import RunProvider from '../providers/RunProvider';
 
 const MainPage = () => {
   return <Box>
@@ -22,9 +24,9 @@ const MainPage = () => {
           <Typography variant='h4'>
             Run
           </Typography>
-          <Box>
-            <Button variant='contained'>Start Run</Button>
-          </Box>
+          <RunProvider>
+            <RunPanel />
+          </RunProvider>
         </Stack>
       </Stack>
 
