@@ -40,7 +40,7 @@ const LabelledBlock = ({ deviceState, x, y, width, height }) => {
 
 LabelledBlock.propTypes = {
     ...basicProps,
-    deviceState: PropTypes.object.isRequired,
+    deviceState: PropTypes.object,
 };
 
 const FixedDevices = [
@@ -76,7 +76,6 @@ const Diagram = () => {
     return (
         <div >
             <svg width={width} height={height} viewBox={`0 0 ${width} ${height}`} style={{ border: "2px solid gray", borderRadius: 8 }}>
-                <circle cx={40} cy={40} r={30} fill="red" />
                 {FixedDevices.map((device) => {
                     let deviceState = null;
                     if (device.drawingId in drawingDevices) {
