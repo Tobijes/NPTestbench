@@ -73,11 +73,10 @@ public class DataService : BackgroundService, IDisposable
                 _dataState.DeviceStates[id].Value = values[i];
                 _dataState.DeviceStates[id].ValueRunMaximum = Math.Max(_dataState.DeviceStates[id].ValueRunMaximum, values[i]);
                 _dataState.DeviceStates[id].ValueRunMinimum = Math.Min(_dataState.DeviceStates[id].ValueRunMinimum, values[i]);
-
-                Console.WriteLine($"Device: {devices[i].Name} ({devices[i].DrawingID}) Value: {values[i]}");
             }
             // TODO: Should not be published on every read
             await _dataNotifier.PublishDataState(_dataState);
+            Console.WriteLine($"{DateTime.Now}: Published data state!");
 
             await Task.Delay(_runId != null ? SAMPLE_DELAY_HIGH : SAMPLE_DELAY_LOW);
         }
