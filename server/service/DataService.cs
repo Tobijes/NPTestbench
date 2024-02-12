@@ -75,8 +75,7 @@ public class DataService : BackgroundService, IDisposable
                 _dataState.DeviceStates[id].ValueRunMinimum = Math.Min(_dataState.DeviceStates[id].ValueRunMinimum, values[i]);
             }
             // TODO: Should not be published on every read
-            await _dataNotifier.PublishDataState(_dataState);
-            Console.WriteLine($"{DateTime.Now}: Published data state!");
+            await PublishDataState();
 
             await Task.Delay(_runId != null ? SAMPLE_DELAY_HIGH : SAMPLE_DELAY_LOW);
         }
@@ -84,6 +83,9 @@ public class DataService : BackgroundService, IDisposable
 
     public async Task<Run> StartRun()
     {
+        if (_runId != null) {
+            throw new Exception("Already running");
+        }
         var configuration = await _configurationService.GetActiveConfiguration();
         using var context = new DataContext();
         var run = new Run()
@@ -94,6 +96,8 @@ public class DataService : BackgroundService, IDisposable
         context.Runs.Add(run);
         await context.SaveChangesAsync();
         _runId = run.Id;
+        Console.WriteLine($"{DateTime.Now}: Started run");
+        await PublishDataState();
         return run;
     }
 
@@ -108,7 +112,15 @@ public class DataService : BackgroundService, IDisposable
         var run = await context.Runs.FindAsync(oldRunId) ?? throw new Exception("Configuration ID did not exist");
         run.EndTime = DateTime.Now;
         await context.SaveChangesAsync();
+        Console.WriteLine($"{DateTime.Now}: Stopped run");
+        await PublishDataState();
         return run;
+    }
+
+    private async Task PublishDataState() {
+        _dataState.RunId = _runId;
+        await _dataNotifier.PublishDataState(_dataState);
+        Console.WriteLine($"{DateTime.Now}: Published data state");
     }
 
 

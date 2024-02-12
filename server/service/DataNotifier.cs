@@ -11,7 +11,7 @@ public class DataNotifier
     }
 
     public class DataState {
-        public bool IsRunning {get; set;} = false;
+        public int? RunId {get; set;}
 
         public Dictionary<int, DeviceState> DeviceStates {get; set;} = [];
     }
