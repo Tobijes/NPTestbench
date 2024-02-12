@@ -29,6 +29,12 @@ public class ConfigurationController : ControllerBase
         return configuration;
     }
 
+    [HttpGet("SetActiveConfiguration/{id}")]
+    public async Task SetActiveConfiguration(int id)
+    {
+       await _configurationService.SetActiveConfig(id);
+    }
+
     [HttpGet("List")]
     public async Task<List<Configuration>> ListConfigurations()
     {
