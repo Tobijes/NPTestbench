@@ -41,7 +41,7 @@ public class ConfigurationService
             };
             context.Devices.Add(device);
             context.Devices.Add(device2);
-            
+
             context.SaveChanges();
         }
 
@@ -67,6 +67,7 @@ public class ConfigurationService
             .FirstAsync(c => c.Id == id) ?? throw new Exception("Configuration ID did not exist");
 
         _activeConfiguration = configuration;
+        System.Console.WriteLine("active config is now: " + _activeConfiguration.Id);
 
     }
 

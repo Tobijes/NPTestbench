@@ -8,26 +8,24 @@ const ConfigurationProvider = (props) => {
     const [configs, loadConfigs] = useState([])
 
 
-   /* useEffect(() => {
+    useEffect(() => {
         // This function will update the server with the new active configuration
         const updateServerActiveConfig = async () => {
             if (state) { // Ensure there is an active configuration to update
                 try {
-                    const response = await fetch('http://localhost:5000/api/Configuration/active', {
+
+                    const response = await fetch('http://localhost:5000/api/Configuration/SetActiveConfiguration/'+state.id, {
                         method: 'POST', // Use 'POST' or 'PUT', depending on your API requirements
                         headers: {
                             'Content-Type': 'application/json',
                         },
-                        body: JSON.stringify(state), // Send the active configuration as the request body
+                        //body: JSON.stringify(state.id), // Send the active configuration as the request body
                     });
 
                     if (!response.ok) {
                         throw new Error('Failed to update the active configuration on the server');
                     }
 
-                    // Optionally, process the response
-                    const data = await response.json();
-                    console.log('Server updated successfully:', data);
                 } catch (error) {
                     console.error('Error updating the active configuration:', error);
                 }
@@ -37,11 +35,11 @@ const ConfigurationProvider = (props) => {
         if (state !== null) { // Check if the state is not null to avoid running on initial load
             updateServerActiveConfig();
         }
-    }, [state]); // Run this effect when `state` changes*/
+    }, [state]); // Run this effect when `state` changes
 
     useEffect(() => {
         console.log(state); // Outputs the new state value
-    }, [state]); 
+    }, [state]);
 
     useEffect(() => {
         const fetchActiveConfig = async () => {
@@ -73,7 +71,7 @@ const ConfigurationProvider = (props) => {
     }, []);
 
     return (
-        <ConfigurationContext.Provider value={{ state, setState, configs}}>
+        <ConfigurationContext.Provider value={{ state, setState, configs }}>
             {props.children}
         </ConfigurationContext.Provider>
     );
