@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.SignalR;
+using NPTestbench.Models;
 
 public class DataNotifier
 {
@@ -9,14 +10,24 @@ public class DataNotifier
         _hubContext = hubContext;
     }
 
-    public class DataMessage {
-        public int DeviceId {get; set;}
-        public string? DrawingId { get; set; }
-        public float Value {get; set;}
+    public class DataState {
+        public bool IsRunning {get; set;} = false;
+
+        public Dictionary<int, DeviceState> DeviceStates {get; set;} = [];
     }
 
-    public async Task PublishMessage(DataMessage message)
+    public class DeviceState {
+        public int Id {get; set;}
+        public string Name {get; set;}
+        public string? DrawingId {get; set;}
+        public float Value {get; set;}
+        public float ValueRunMaximum {get; set;}
+        public float ValueRunMinimum {get; set;}
+    }
+
+
+    public async Task PublishDataState(DataState dataState)
     {
-        await _hubContext.Clients.All.SendAsync("ReceiveMessage", message);
+        await _hubContext.Clients.All.SendAsync("DataState", dataState);
     }
 }

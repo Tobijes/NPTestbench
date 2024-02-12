@@ -11,11 +11,14 @@ public class DataService : BackgroundService, IDisposable
     private const int SAMPLE_DELAY_HIGH = 1000 / 3;
     private int? _runId;
 
+    private DataNotifier.DataState _dataState;
+
     public DataService(ConfigurationService configurationService, DataNotifier dataNotifier, CommunicationService communicationService)
     {
         _configurationService = configurationService;
         _dataNotifier = dataNotifier;
         _communcationService = communicationService;
+        _dataState = new DataNotifier.DataState();
     }
 
 
@@ -29,7 +32,7 @@ public class DataService : BackgroundService, IDisposable
         {
             if (_runId != null && lastRunId == null)
             { // Run Started
-                // Refresh devices (make event-based instead)
+                // TODO: Refresh devices (make event-based instead)
                 devices = (await _configurationService.GetActiveConfiguration()).Devices.ToArray();
             }
 
@@ -58,12 +61,23 @@ public class DataService : BackgroundService, IDisposable
 
             for (int i = 0; i < devices.Length; i++)
             {
-                await _dataNotifier.PublishMessage(new DataNotifier.DataMessage() { 
-                    DeviceId = devices[i].Id, Value = values[i], DrawingId = devices[i].DrawingID
-                });
+                int id = devices[i].Id;
+                if (!_dataState.DeviceStates.ContainsKey(id)) {
+                    _dataState.DeviceStates.Add(id, new DataNotifier.DeviceState(){
+                        Id = id,
+                        Name = devices[i].Name,    
+                        DrawingId = devices[i].DrawingID,    
+                    });
+                }
+
+                _dataState.DeviceStates[id].Value = values[i];
+                _dataState.DeviceStates[id].ValueRunMaximum = Math.Max(_dataState.DeviceStates[id].ValueRunMaximum, values[i]);
+                _dataState.DeviceStates[id].ValueRunMinimum = Math.Min(_dataState.DeviceStates[id].ValueRunMinimum, values[i]);
+
                 Console.WriteLine($"Device: {devices[i].Name} ({devices[i].DrawingID}) Value: {values[i]}");
             }
-
+            // TODO: Should not be published on every read
+            await _dataNotifier.PublishDataState(_dataState);
 
             await Task.Delay(_runId != null ? SAMPLE_DELAY_HIGH : SAMPLE_DELAY_LOW);
         }
