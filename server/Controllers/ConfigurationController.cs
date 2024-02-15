@@ -59,13 +59,14 @@ public class ConfigurationController : ControllerBase
         public required string Value { get; set; }
     }
 
+  
+
     [HttpPost("{configurationId}/Parameter")]
     public Task<Configuration> AddParameter(int configurationId, AddParameterRequest input)
     {
         var configuration = _configurationService.AddParameter(configurationId, input.Name, input.Value);
         return configuration;
     }
-
 
     public class AddDeviceRequest
     {

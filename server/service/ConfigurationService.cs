@@ -18,9 +18,25 @@ public class ConfigurationService
                 Name = "Default",
                 CreatedAt = DateTime.Now,
                 UpdatedAt = DateTime.Now,
+
             };
             context.Configurations.Add(defaultConfiguration);
             context.SaveChanges();
+
+            var parm1 = new Parameter()
+            {
+                Name = "DefaultParm",
+                Value = "DefaulVal",
+                ConfigurationId = defaultConfiguration.Id,
+            };
+
+            var parm2 = new Parameter()
+            {
+                Name = "DefaultParm2",
+                Value = "DefaulVal2",
+                ConfigurationId = defaultConfiguration.Id,
+            };
+
 
             var device = new Device()
             {
@@ -39,6 +55,7 @@ public class ConfigurationService
                 DrawingID = "Pres1",
                 ConfigurationId = defaultConfiguration.Id
             };
+            context.Parameters.AddRange([parm1,parm2]);
             context.Devices.Add(device);
             context.Devices.Add(device2);
 

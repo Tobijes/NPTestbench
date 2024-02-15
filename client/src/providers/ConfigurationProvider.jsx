@@ -5,6 +5,7 @@ import PropTypes from 'prop-types';
 
 const ConfigurationProvider = (props) => {
     const [state, setState] = useState(null);
+
     const [configs, loadConfigs] = useState([])
 
 
@@ -14,14 +15,14 @@ const ConfigurationProvider = (props) => {
             if (state) { // Ensure there is an active configuration to update
                 try {
 
-                    const response = await fetch('http://localhost:5000/api/Configuration/SetActiveConfiguration/'+state.id, {
+                    const response = await fetch('http://localhost:5000/api/Configuration/SetActiveConfiguration/' + state.id, {
                         method: 'POST', // Use 'POST' or 'PUT', depending on your API requirements
                         headers: {
                             'Content-Type': 'application/json',
                         },
                         //body: JSON.stringify(state.id), // Send the active configuration as the request body
                     });
-
+                    console.log("active config has been set")
                     if (!response.ok) {
                         throw new Error('Failed to update the active configuration on the server');
                     }
@@ -37,10 +38,30 @@ const ConfigurationProvider = (props) => {
         }
     }, [state]); // Run this effect when `state` changes
 
-    useEffect(() => {
-        console.log(state); // Outputs the new state value
-    }, [state]);
+    const updateParameters = async (newParameters) => {
+        setState((prevState) => ({
+            ...prevState,
+            parameters: newParameters,
+        }));
+        try {
+            const response = await fetch('http://localhost:5000/api/Configuration/' + newParameters.configurationId + '/Parameter/', {
+                method: 'POST', // Use 'POST' or 'PUT', depending on your API requirements
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(newParameters.name, newParameters.value), // Send the active configuration as the request body
+            });
+            console.log("parameters has been added")
+            if (!response.ok) {
+                throw new Error('Failed to update the active configuration on the server');
+            }
 
+        } catch (error) {
+            console.error('Error updating the active configuration:', error);
+        }
+        
+    };
+    
     useEffect(() => {
         const fetchActiveConfig = async () => {
             try {
@@ -60,7 +81,6 @@ const ConfigurationProvider = (props) => {
             try {
                 const response = await fetch('http://localhost:5000/api/Configuration/list');
                 const data = await response.json();
-                console.log(data)
                 loadConfigs(data);
             } catch (error) {
                 console.error('Error fetching data: ', error);
@@ -71,7 +91,7 @@ const ConfigurationProvider = (props) => {
     }, []);
 
     return (
-        <ConfigurationContext.Provider value={{ state, setState, configs }}>
+        <ConfigurationContext.Provider value={{ state, setState, configs, updateParameters }}>
             {props.children}
         </ConfigurationContext.Provider>
     );
@@ -83,6 +103,7 @@ ConfigurationProvider.propTypes = {
 };
 
 const ConfigurationContext = createContext();
+export const updateParameters = () => updateParameters(ConfigurationContext);
 
 export const useConfigurationContext = () => useContext(ConfigurationContext);
 
