@@ -67,7 +67,7 @@ public class ConfigurationService
 
     public async Task<Configuration> GetById(int id)
     {
-        using var context = new DataContext();
+        await using var context = new DataContext();
         var configuration = await context.Configurations
             .Include(configuration => configuration.Parameters)
             .Include(configuration => configuration.Devices)
@@ -77,7 +77,7 @@ public class ConfigurationService
 
     public async Task SetActiveConfig(int id)
     {
-        using var context = new DataContext();
+        await using var context = new DataContext();
         var configuration = await context.Configurations
             .Include(configuration => configuration.Parameters)
             .Include(configuration => configuration.Devices)
@@ -90,7 +90,7 @@ public class ConfigurationService
 
     public async Task<Configuration> GetActiveConfiguration()
     {
-        using var context = new DataContext();
+        await using var context = new DataContext();
         var configuration = await context.Configurations
             .Include(configuration => configuration.Parameters)
             .Include(configuration => configuration.Devices)
@@ -100,7 +100,7 @@ public class ConfigurationService
 
     public async Task<List<Configuration>> List(int size = 25)
     {
-        using var context = new DataContext();
+        await using var context = new DataContext();
         var items = await context.Configurations
             .OrderBy(record => record.CreatedAt)
             .Take(size)
@@ -110,7 +110,7 @@ public class ConfigurationService
 
     public async Task<Configuration> Create(String configurationName)
     {
-        using var context = new DataContext();
+        await using var context = new DataContext();
         var configuration = new Configuration()
         {
             Name = configurationName,
@@ -124,7 +124,7 @@ public class ConfigurationService
 
     public async Task<Configuration> AddParameter(int configurationId, string name, string value)
     {
-        using var context = new DataContext();
+        await using var context = new DataContext();
         var configuration = await context.Configurations.FindAsync(configurationId) ?? throw new Exception("Configuration ID did not exist");
         var parameter = new Parameter()
         {
@@ -138,7 +138,7 @@ public class ConfigurationService
 
     public async Task<Configuration> AddDevice(int configurationId, string name, ushort startAddress, DeviceDataType dataType, string? DrawingID)
     {
-        using var context = new DataContext();
+        await using var context = new DataContext();
         var configuration = await context.Configurations.FindAsync(configurationId) ?? throw new Exception("Configuration ID did not exist");
         var device = new Device()
         {

@@ -14,15 +14,15 @@ public class RunController : ControllerBase
     }
 
     [HttpPost("Start")]
-    public async Task<Run> Start()
+    public  Task<Run> Start()
     {
-        return await _dataService.StartRun();
+        return  _dataService.StartRun();
     }
 
     [HttpPost("Stop")]
-    public async Task<Run> Stop()
+    public  Task<Run> Stop()
     {
-        return await _dataService.StopRun();
+        return  _dataService.StopRun();
     }
 
 }
