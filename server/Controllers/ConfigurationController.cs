@@ -16,16 +16,16 @@ public class ConfigurationController : ControllerBase
     }
 
     [HttpGet()]
-    public async Task<Configuration> GetActiveConfiguration()
+    public  Task<Configuration> GetActiveConfiguration()
     {
-        var configuration = await _configurationService.GetActiveConfiguration();
+        var configuration =  _configurationService.GetActiveConfiguration();
         return configuration;
     }
 
     [HttpGet("{id}")]
-    public async Task<Configuration> GetConfiguration(int id)
+    public  Task<Configuration> GetConfiguration(int id)
     {
-        var configuration = await _configurationService.GetById(id);
+        var configuration =  _configurationService.GetById(id);
         return configuration;
     }
 
@@ -36,9 +36,9 @@ public class ConfigurationController : ControllerBase
     }
 
     [HttpGet("List")]
-    public async Task<List<Configuration>> ListConfigurations()
+    public  Task<List<Configuration>> ListConfigurations()
     {
-        var configurations = await _configurationService.List();
+        var configurations =  _configurationService.List();
         return configurations;
     }
 
@@ -47,9 +47,9 @@ public class ConfigurationController : ControllerBase
         public required string Name { get; set; }
     }
     [HttpPost]
-    public async Task<Configuration> CreateConfiguration(CreateConfigurationRequest input)
+    public Task<Configuration> CreateConfiguration(CreateConfigurationRequest input)
     {
-        var configuration = await _configurationService.Create(input.Name);
+        var configuration = _configurationService.Create(input.Name);
         return configuration;
     }
 
@@ -77,7 +77,7 @@ public class ConfigurationController : ControllerBase
     }
 
     [HttpPost("{configurationId}/Device")]
-    public Task<Configuration> AddParameter(int configurationId, AddDeviceRequest input)
+    public Task<Configuration> AddDevice(int configurationId, AddDeviceRequest input)
     {
         var configuration = _configurationService.AddDevice(configurationId, input.Name, input.StartAddress, input.DataType, input.DrawingID);
         return configuration;
