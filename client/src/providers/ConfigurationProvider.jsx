@@ -43,13 +43,17 @@ const ConfigurationProvider = (props) => {
             ...prevState,
             parameters: newParameters,
         }));
+        console.log(newParameters[newParameters.length - 1].name, newParameters[newParameters.length - 1].value)
         try {
-            const response = await fetch('http://localhost:5000/api/Configuration/' + newParameters.configurationId + '/Parameter/', {
+            const response = await fetch('http://localhost:5000/api/Configuration/' + state.id + '/Parameter/', {
                 method: 'POST', // Use 'POST' or 'PUT', depending on your API requirements
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify(newParameters.name, newParameters.value), // Send the active configuration as the request body
+                body: JSON.stringify({
+                    Name:newParameters[newParameters.length - 1].name,
+                     Value: newParameters[newParameters.length - 1].value
+                    }), // Send the active configuration as the request body
             });
             console.log("parameters has been added")
             if (!response.ok) {
@@ -60,6 +64,32 @@ const ConfigurationProvider = (props) => {
             console.error('Error updating the active configuration:', error);
         }
         
+    };
+
+
+    const deleteParameter = async (parameterId) => {
+        var newParameters = state.parameters.filter((param) => param.id !== parameterId);
+        setState((prevState) => ({
+            ...prevState,
+            parameters: newParameters,
+        }));
+        console.log("this is parm"+ parameterId)
+        try {
+            const response = await fetch('http://localhost:5000/api/Configuration/' + parameterId + '/DeleteParameter/', {
+                method: 'POST', // Use 'POST' or 'PUT', depending on your API requirements
+                headers: {
+                    'Content-Type': 'application/json',
+                }, // Send the active configuration as the request body
+            });
+            console.log("parameters has been added")
+            if (!response.ok) {
+                throw new Error('Failed to delete parameter');
+            }
+
+        } catch (error) {
+            console.error('Failed to delete parameter:', error);
+        }
+
     };
     
     useEffect(() => {
@@ -91,7 +121,7 @@ const ConfigurationProvider = (props) => {
     }, []);
 
     return (
-        <ConfigurationContext.Provider value={{ state, setState, configs, updateParameters }}>
+        <ConfigurationContext.Provider value={{ state, setState, configs, updateParameters, deleteParameter }}>
             {props.children}
         </ConfigurationContext.Provider>
     );
@@ -103,7 +133,6 @@ ConfigurationProvider.propTypes = {
 };
 
 const ConfigurationContext = createContext();
-export const updateParameters = () => updateParameters(ConfigurationContext);
 
 export const useConfigurationContext = () => useContext(ConfigurationContext);
 

@@ -68,6 +68,13 @@ public class ConfigurationController : ControllerBase
         return configuration;
     }
 
+
+    [HttpPost("{paramId}/DeleteParameter")]
+    public async Task DeleteParameter(int paramId)
+    {
+         await _configurationService.DeleteParameter(paramId);
+    }
+
     public class AddDeviceRequest
     {
         public required string Name { get; set; }

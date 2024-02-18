@@ -39,7 +39,7 @@ const ParameterInput = ({ onRemove, onParamChange, paramName, paramValue }) => {
 };
 
 const ParameterList = () => {
-    const { state, updateParameters } = useConfigurationContext(); // Destructure to get state and setState
+    const { state, updateParameters, deleteParameter } = useConfigurationContext(); // Destructure to get state and setState
     console.log("state" + JSON.stringify(state))
     //why is state null on refresh? rewrite when figured out
     const [localParameters, setLocalParameters] = useState(state.parameters.map(param => ({
@@ -52,13 +52,12 @@ const ParameterList = () => {
 
     const addParameter = () => {
         console.log("this is add State: " + JSON.stringify(state))
-        console.log("isDisabled" + isDisabled)
         if (!isDisabled)
             setLocalParameters([...localParameters, { id: Date.now(), name: '', value: '' }]);
     };
 
     const removeParameter = (id) => {
-        setLocalParameters(localParameters.filter((param) => param.id !== id));
+        deleteParameter(id);
     };
 
     const handleParamChange = (id, data) => {
@@ -70,8 +69,6 @@ const ParameterList = () => {
         }));
     };
     const saveParameters = () => {
-
-        console.log('Saving parameters:', localParameters);
         updateParameters(localParameters)
     };
 
@@ -102,7 +99,6 @@ const ParameterList = () => {
                     Save All
                 </Button>
             </Box>
-
         </Container>
 
     );

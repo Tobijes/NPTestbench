@@ -7,7 +7,6 @@ import Select from '@mui/material/Select';
 import { useConfigurationContext } from '../providers/ConfigurationProvider';
 
 export default function ConfigurationDropDown() {
-  // const [config, setActiveConfig] = React.useState('');
     const { state, setState , configs} = useConfigurationContext(); // Destructure to get state and setState
     const handleChange = (event) => {
         const selectedConfigId = event.target.value;     

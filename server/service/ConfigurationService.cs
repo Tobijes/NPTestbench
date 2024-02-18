@@ -136,6 +136,17 @@ public class ConfigurationService
         return configuration;
     }
 
+    public async Task DeleteParameter( int parameterId)
+    {
+        await using var context = new DataContext();
+        var parameter = new Parameter { Id = parameterId };
+
+        // Attach the stub entity to the context
+        context.Parameters.Attach(parameter);
+
+        context.Parameters.Remove(parameter);
+        await context.SaveChangesAsync();
+    }
     public async Task<Configuration> AddDevice(int configurationId, string name, ushort startAddress, DeviceDataType dataType, string? DrawingID)
     {
         await using var context = new DataContext();
