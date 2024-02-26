@@ -6,7 +6,7 @@ import PropTypes from 'prop-types';
 const ConfigurationProvider = (props) => {
     const [activeConfiguration, setActiveConfiguration] = useState(null);
 
-    const [configs, loadConfigs] = useState([])
+    const [configs, setConfigurations] = useState([])
 
     const [currentConfiguration, setCurrentConfiguration] = useState(null)
 
@@ -98,6 +98,10 @@ const ConfigurationProvider = (props) => {
     };
     
     useEffect(() => {
+       console.log("configs added")
+    }, [configs]);
+
+    useEffect(() => {
         const fetchActiveConfig = async () => {
             try {
                 const response = await fetch('http://localhost:5000/api/Configuration');
@@ -117,7 +121,7 @@ const ConfigurationProvider = (props) => {
             try {
                 const response = await fetch('http://localhost:5000/api/Configuration/list');
                 const data = await response.json();
-                loadConfigs(data);
+                setConfigurations(data);
             } catch (error) {
                 console.error('Error fetching data: ', error);
             }
@@ -132,6 +136,7 @@ const ConfigurationProvider = (props) => {
             activeConfiguration, 
             setActiveConfiguration,
             configs, 
+            setConfigurations,
             updateParameters, 
             deleteParameter,
             currentConfiguration,
