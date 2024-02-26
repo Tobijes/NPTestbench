@@ -39,19 +39,19 @@ const ParameterInput = ({ onRemove, onParamChange, paramName, paramValue }) => {
 };
 
 const ParameterList = () => {
-    const { state, updateParameters, deleteParameter } = useConfigurationContext(); // Destructure to get state and setState
-    console.log("state" + JSON.stringify(state))
+    const { activeConfiguration, updateParameters, deleteParameter } = useConfigurationContext(); // Destructure to get state and setState
+    console.log("state" + JSON.stringify(activeConfiguration))
     //why is state null on refresh? rewrite when figured out
-    const [localParameters, setLocalParameters] = useState(state.parameters.map(param => ({
+    const [localParameters, setLocalParameters] = useState(activeConfiguration.parameters.map(param => ({
         id: param.id || Date.now(),
         name: param.name || '',
         value: param.value || ''
     })))
 
-    const isDisabled = state.parameters.length !== localParameters.length
+    const isDisabled = activeConfiguration.parameters.length !== localParameters.length
 
     const addParameter = () => {
-        console.log("this is add State: " + JSON.stringify(state))
+        console.log("this is add State: " + JSON.stringify(activeConfiguration))
         if (!isDisabled)
             setLocalParameters([...localParameters, { id: Date.now(), name: '', value: '' }]);
     };

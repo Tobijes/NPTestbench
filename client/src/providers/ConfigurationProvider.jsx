@@ -4,18 +4,21 @@ import PropTypes from 'prop-types';
 
 
 const ConfigurationProvider = (props) => {
-    const [state, setState] = useState(null);
+    const [activeConfiguration, setActiveConfiguration] = useState(null);
 
     const [configs, loadConfigs] = useState([])
+
+    const [currentConfiguration, setCurrentConfiguration] = useState(null)
+
 
 
     useEffect(() => {
         // This function will update the server with the new active configuration
         const updateServerActiveConfig = async () => {
-            if (state) { // Ensure there is an active configuration to update
+            if (activeConfiguration) { // Ensure there is an active configuration to update
                 try {
 
-                    const response = await fetch('http://localhost:5000/api/Configuration/SetActiveConfiguration/' + state.id, {
+                    const response = await fetch('http://localhost:5000/api/Configuration/SetActiveConfiguration/' + activeConfiguration.id, {
                         method: 'POST', // Use 'POST' or 'PUT', depending on your API requirements
                         headers: {
                             'Content-Type': 'application/json',
@@ -33,19 +36,21 @@ const ConfigurationProvider = (props) => {
             }
         };
 
-        if (state !== null) { // Check if the state is not null to avoid running on initial load
+        if (activeConfiguration !== null) { // Check if the state is not null to avoid running on initial load
             updateServerActiveConfig();
         }
-    }, [state]); // Run this effect when `state` changes
+    }, [activeConfiguration]); // Run this effect when `state` changes
+
+
 
     const updateParameters = async (newParameters) => {
-        setState((prevState) => ({
+        setActiveConfiguration((prevState) => ({
             ...prevState,
             parameters: newParameters,
         }));
         console.log(newParameters[newParameters.length - 1].name, newParameters[newParameters.length - 1].value)
         try {
-            const response = await fetch('http://localhost:5000/api/Configuration/' + state.id + '/Parameter/', {
+            const response = await fetch('http://localhost:5000/api/Configuration/' + activeConfiguration.id + '/Parameter/', {
                 method: 'POST', // Use 'POST' or 'PUT', depending on your API requirements
                 headers: {
                     'Content-Type': 'application/json',
@@ -68,8 +73,8 @@ const ConfigurationProvider = (props) => {
 
 
     const deleteParameter = async (parameterId) => {
-        var newParameters = state.parameters.filter((param) => param.id !== parameterId);
-        setState((prevState) => ({
+        var newParameters = activeConfiguration.parameters.filter((param) => param.id !== parameterId);
+        setActiveConfiguration((prevState) => ({
             ...prevState,
             parameters: newParameters,
         }));
@@ -97,7 +102,8 @@ const ConfigurationProvider = (props) => {
             try {
                 const response = await fetch('http://localhost:5000/api/Configuration');
                 const data = await response.json();
-                setState(data);
+                setActiveConfiguration(data);
+                setCurrentConfiguration(data)
             } catch (error) {
                 console.error('Error fetching data: ', error);
             }
@@ -121,7 +127,17 @@ const ConfigurationProvider = (props) => {
     }, []);
 
     return (
-        <ConfigurationContext.Provider value={{ state, setState, configs, updateParameters, deleteParameter }}>
+        <ConfigurationContext.Provider value={
+        {
+            activeConfiguration, 
+            setActiveConfiguration,
+            configs, 
+            updateParameters, 
+            deleteParameter,
+            currentConfiguration,
+            setCurrentConfiguration 
+        }
+         }>
             {props.children}
         </ConfigurationContext.Provider>
     );
