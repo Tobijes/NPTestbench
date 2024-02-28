@@ -50,14 +50,33 @@ public class ConfigurationService
             var device2 = new Device()
             {
                 Name = "DefaultDevice2",
-                StartAddress = 0,
+                StartAddress = 4,
                 DataType = DeviceDataType.Float32,
+                DrawingID = "Pres1",
+                ConfigurationId = defaultConfiguration.Id
+            };
+
+            var valve1 = new Device()
+            {
+                Name = "Valve 1",
+                StartAddress = 8,
+                DataType = DeviceDataType.UInt16,
+                ConfigurationId = defaultConfiguration.Id
+            };
+
+            var valve2 = new Device()
+            {
+                Name = "Valve 2",
+                StartAddress = 10,
+                DataType = DeviceDataType.UInt16,
                 DrawingID = "Pres1",
                 ConfigurationId = defaultConfiguration.Id
             };
             context.Parameters.AddRange([parm1,parm2]);
             context.Devices.Add(device);
             context.Devices.Add(device2);
+            context.Devices.Add(valve1);
+            context.Devices.Add(valve2);
 
             context.SaveChanges();
         }

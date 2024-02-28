@@ -68,6 +68,11 @@ public class CommunicationService
         return results;
     }
 
+    public async Task WriteDevice(Device device, ushort value) {
+
+        await _master.WriteSingleRegisterAsync(1, device.StartAddress, value);
+    }
+
     private byte[] ConvertUShortsToBytes(ushort[] ushorts)
     {
         byte[] bytes = new byte[ushorts.Length * 2];

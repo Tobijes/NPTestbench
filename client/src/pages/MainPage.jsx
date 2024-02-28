@@ -5,6 +5,7 @@ import Diagram from '../components/Diagram';
 import ValveLine from '../components/ValveLine';
 import RunPanel from '../components/RunPanel';
 import RunProvider from '../providers/RunProvider';
+import CommandProvider from '../providers/CommandProvider';
 
 const MainPage = () => {
   return <Box>
@@ -34,10 +35,13 @@ const MainPage = () => {
         <Typography variant='h4'>
           Commands
         </Typography>
-        <Stack spacing={2} divider={<Divider orientation="horizontal" flexItem />}>
-          <ValveLine device={{ name: "Valve 1" }} />
-          <ValveLine device={{ name: "Valve 2" }} />
-        </Stack>
+        <CommandProvider>
+          <Stack spacing={2} divider={<Divider orientation="horizontal" flexItem />}>
+            {/* TODO: Hardcoded ids.  */}
+            <ValveLine device={{ name: "Valve 1", id: 3}} /> 
+            <ValveLine device={{ name: "Valve 2", id: 4}} />
+          </Stack>
+        </CommandProvider>
       </Stack>
     </Stack>
   </Box>;

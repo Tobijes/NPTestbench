@@ -120,7 +120,7 @@ public class DataService : BackgroundService, IDisposable
     private async Task PublishDataState() {
         _dataState.RunId = _runId;
         await _dataNotifier.PublishDataState(_dataState);
-        Console.WriteLine($"{DateTime.Now}: Published data state");
+        // Console.WriteLine($"{DateTime.Now}: Published data state");
     }
 
 
