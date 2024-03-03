@@ -94,11 +94,6 @@ const ParameterList = () => {
                     </Grid>
                 ))}
             </Grid>
-            <Box display="flex" justifyContent="flex-end" marginTop={2}>
-                <Button onClick={saveParameters} color="primary" variant="contained">
-                    Save All
-                </Button>
-            </Box>
         </Container>
 
     );
