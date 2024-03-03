@@ -59,6 +59,13 @@ public class ConfigurationController : ControllerBase
         public required string Value { get; set; }
     }
 
+    public class UpdateParameterRequest
+    {
+        public required string Id {get; set;}
+        public required string Name { get; set; }
+        public required string Value { get; set; }
+    }
+
   
 
     [HttpPost("{configurationId}/Parameter")]
@@ -67,6 +74,14 @@ public class ConfigurationController : ControllerBase
         var configuration = _configurationService.AddParameter(configurationId, input.Name, input.Value);
         return configuration;
     }
+
+    [HttpPost("{configurationId}/UpdateParameter")]
+    public Task<Configuration> UpdateParameter(int configurationId, UpdateParameterRequest input)
+    {
+        var configuration = _configurationService.AddParameter(configurationId, input.Name, input.Value);
+        return configuration;
+    }
+
 
 
     [HttpPost("{paramId}/DeleteParameter")]

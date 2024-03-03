@@ -72,7 +72,7 @@ public class ConfigurationService
                 DrawingID = "Pres1",
                 ConfigurationId = defaultConfiguration.Id
             };
-            context.Parameters.AddRange([parm1,parm2]);
+            context.Parameters.AddRange([parm1, parm2]);
             context.Devices.Add(device);
             context.Devices.Add(device2);
             context.Devices.Add(valve1);
@@ -155,7 +155,18 @@ public class ConfigurationService
         return configuration;
     }
 
-    public async Task DeleteParameter( int parameterId)
+
+    public async Task UpdateParemter(int configurationId, int Id, string name, string value)
+    {
+        await using var context = new DataContext();
+        var configuration = await context.Configurations.FindAsync(configurationId) ?? throw new Exception("Configuration ID did not exist");
+        var parameter = configuration.Parameters.FirstOrDefault(param => param.Id == Id) ?? throw new Exception("paramter not found");
+        parameter.Name = name;
+        parameter.Value = value;
+        await context.SaveChangesAsync();
+    }
+
+    public async Task DeleteParameter(int parameterId)
     {
         await using var context = new DataContext();
         var parameter = new Parameter { Id = parameterId };

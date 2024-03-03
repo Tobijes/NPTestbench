@@ -1,19 +1,31 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Box, TextField, IconButton, Container, Button, Grid } from '@mui/material';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import HighlightOffIcon from '@mui/icons-material/HighlightOff';
 import { useConfigurationContext } from '../providers/ConfigurationProvider';
+import SaveIcon from '@mui/icons-material/Save'; // Importing the Save icon
 
 
-const ParameterInput = ({ onRemove, onParamChange, paramName, paramValue }) => {
+const ParameterInput = ({ parmId, onRemove, onParamChange, paramName, paramValue }) => {
     // Local state to manage input values
     const [name, setName] = useState(paramName || '');
     const [value, setValue] = useState(paramValue || '');
+    const [isModified, setIsModified] = useState(false);
+    const { updateParameter } = useConfigurationContext(); // Destructure to get state and setState
+
+
+    useEffect(() => {
+        setIsModified(name !== paramName || value !== paramValue);
+    }, [name, value, paramName, paramValue]);
+
     // Handle changes to the input fields and propagate them upwards
     const handleChange = (setter) => (event) => {
         setter(event.target.value);
-        onParamChange({ name: event.target.name, value: event.target.value });
+        console.log("this was paramId " + parmId)
+        //onParamChange({ id: paramid, name: event.target.name, value: event.target.value });
     };
+
+
 
     return (
         <Box display="flex" alignItems="center" gap={2} marginBottom={2}>
@@ -31,15 +43,20 @@ const ParameterInput = ({ onRemove, onParamChange, paramName, paramValue }) => {
                 value={value}
                 onChange={handleChange(setValue)}
             />
-            <IconButton onClick={onRemove} color="error">
-                <HighlightOffIcon />
-            </IconButton>
+            <Box display="flex" flexDirection="column" alignItems="center" gap={1}>
+                <IconButton onClick={onRemove} color="error">
+                    <HighlightOffIcon />
+                </IconButton>
+                <IconButton onClick={() => updateParameter({ id: parmId, name: name, value: value })}>
+                    <SaveIcon color={isModified ? 'primary' : 'disabled'} /> {/* Dynamically change color */}
+                </IconButton>
+            </Box>
         </Box>
     );
 };
 
 const ParameterList = () => {
-    const { activeConfiguration, updateParameters, deleteParameter } = useConfigurationContext(); // Destructure to get state and setState
+    const { activeConfiguration, deleteParameter } = useConfigurationContext(); // Destructure to get state and setState
     console.log("state" + JSON.stringify(activeConfiguration))
     //why is state null on refresh? rewrite when figured out
     const [localParameters, setLocalParameters] = useState(activeConfiguration.parameters.map(param => ({
@@ -48,12 +65,9 @@ const ParameterList = () => {
         value: param.value || ''
     })))
 
-    const isDisabled = activeConfiguration.parameters.length !== localParameters.length
-
     const addParameter = () => {
         console.log("this is add State: " + JSON.stringify(activeConfiguration))
-        if (!isDisabled)
-            setLocalParameters([...localParameters, { id: Date.now(), name: '', value: '' }]);
+        setLocalParameters([...localParameters, { id: Date.now(), name: '', value: '' }]);
     };
 
     const removeParameter = (id) => {
@@ -61,15 +75,12 @@ const ParameterList = () => {
     };
 
     const handleParamChange = (id, data) => {
-        setLocalParameters(localParameters.map(param => {
-            if (param.id === id) {
-                return { ...param, [data.name]: data.value };
-            }
-            return param;
-        }));
-    };
-    const saveParameters = () => {
-        updateParameters(localParameters)
+        /* setLocalParameters(localParameters.map(param => {
+             if (param.id === id) {
+                 return { ...param, [data.name]: data.value };
+             }
+             return param;
+         }));*/
     };
 
     return (
@@ -77,7 +88,7 @@ const ParameterList = () => {
             <Box display="flex" flexWrap="wrap" alignItems="center" marginBottom={2} >
                 <h3>Parameters</h3>
                 <Box marginLeft={2}>
-                    <IconButton onClick={addParameter} color="primary" disabled={isDisabled}>
+                    <IconButton onClick={addParameter} color="primary">
                         <AddCircleOutlineIcon />
                     </IconButton>
                 </Box>
@@ -86,6 +97,7 @@ const ParameterList = () => {
                 {localParameters.map((param) => (
                     <Grid item xs={12} sm={12} md={4} key={param.id}>
                         <ParameterInput
+                            parmId={param.id}
                             paramName={param.name}
                             paramValue={param.value}
                             onParamChange={(data) => handleParamChange(param.id, data)}

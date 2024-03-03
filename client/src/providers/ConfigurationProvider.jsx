@@ -43,12 +43,24 @@ const ConfigurationProvider = (props) => {
 
 
 
-    const updateParameters = async (newParameters) => {
-        setActiveConfiguration((prevState) => ({
-            ...prevState,
-            parameters: newParameters,
-        }));
-        console.log(newParameters[newParameters.length - 1].name, newParameters[newParameters.length - 1].value)
+    const updateParameter = async (parameter) => {
+        setActiveConfiguration((prevState) => {
+            // Check if prevState and parameters exist to avoid null reference errors
+            if (!prevState || !prevState.parameters) return prevState;
+            const newParameters = prevState.parameters.map((param) => {
+                // If the parameter ID matches, return the updated parameter, else return the original
+                console.log()
+                return param.id === parameter.id ? parameter : param;
+            });
+            console.log("parameters has been added " + JSON.stringify(newParameters))
+            return {
+                ...prevState,
+                parameters: newParameters,
+            };
+        });
+       
+
+        console.log("this is paramter to update: " + JSON.stringify(parameter))
         try {
             const response = await fetch('http://localhost:5000/api/Configuration/' + activeConfiguration.id + '/Parameter/', {
                 method: 'POST', // Use 'POST' or 'PUT', depending on your API requirements
@@ -56,11 +68,10 @@ const ConfigurationProvider = (props) => {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
-                    Name:newParameters[newParameters.length - 1].name,
-                     Value: newParameters[newParameters.length - 1].value
-                    }), // Send the active configuration as the request body
+                    Name: parameter.name,
+                    Value: parameter.value
+                }), // Send the active configuration as the request body
             });
-            console.log("parameters has been added")
             if (!response.ok) {
                 throw new Error('Failed to update the active configuration on the server');
             }
@@ -68,7 +79,7 @@ const ConfigurationProvider = (props) => {
         } catch (error) {
             console.error('Error updating the active configuration:', error);
         }
-        
+
     };
 
 
@@ -78,7 +89,7 @@ const ConfigurationProvider = (props) => {
             ...prevState,
             parameters: newParameters,
         }));
-        console.log("this is parm"+ parameterId)
+        console.log("this is parm" + parameterId)
         try {
             const response = await fetch('http://localhost:5000/api/Configuration/' + parameterId + '/DeleteParameter/', {
                 method: 'POST', // Use 'POST' or 'PUT', depending on your API requirements
@@ -86,7 +97,7 @@ const ConfigurationProvider = (props) => {
                     'Content-Type': 'application/json',
                 }, // Send the active configuration as the request body
             });
-            console.log("parameters has been added")
+            console.log("parameters has been added " + newParameters)
             if (!response.ok) {
                 throw new Error('Failed to delete parameter');
             }
@@ -96,9 +107,9 @@ const ConfigurationProvider = (props) => {
         }
 
     };
-    
+
     useEffect(() => {
-       console.log("configs added")
+        console.log("configs added")
     }, [configs]);
 
     useEffect(() => {
@@ -132,17 +143,17 @@ const ConfigurationProvider = (props) => {
 
     return (
         <ConfigurationContext.Provider value={
-        {
-            activeConfiguration, 
-            setActiveConfiguration,
-            configs, 
-            setConfigurations,
-            updateParameters, 
-            deleteParameter,
-            currentConfiguration,
-            setCurrentConfiguration 
-        }
-         }>
+            {
+                activeConfiguration,
+                setActiveConfiguration,
+                configs,
+                setConfigurations,
+                updateParameter,
+                deleteParameter,
+                currentConfiguration,
+                setCurrentConfiguration
+            }
+        }>
             {props.children}
         </ConfigurationContext.Provider>
     );
