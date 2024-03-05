@@ -6,6 +6,18 @@ import ScrollableList from '../components/ConfigurationListView';
 const ConfigurationPage = () => {
   return <Grid container spacing={2}>
     <Grid item xs={2}>
+      <h4>Template drop down</h4>
+    </Grid>
+    <Grid item xs={10}>
+      <h4>NAme of config (align better)</h4>
+    </Grid>
+    <Grid item xs={4}>
+
+    </Grid>
+    <Grid item xs={8}>
+
+    </Grid>
+    <Grid item xs={2}>
       <ScrollableList/>
     </Grid>
     <Grid item xs={10}>

@@ -44,7 +44,7 @@ const ConfigurationProvider = (props) => {
 
 
     const updateParameter = async (parameter) => {
-        setActiveConfiguration((prevState) => {
+        setCurrentConfiguration((prevState) => {
             // Check if prevState and parameters exist to avoid null reference errors
             if (!prevState || !prevState.parameters) return prevState;
             const newParameters = prevState.parameters.map((param) => {
@@ -62,12 +62,13 @@ const ConfigurationProvider = (props) => {
 
         console.log("this is paramter to update: " + JSON.stringify(parameter))
         try {
-            const response = await fetch('http://localhost:5000/api/Configuration/' + activeConfiguration.id + '/Parameter/', {
+            const response = await fetch('http://localhost:5000/api/Configuration/' + activeConfiguration.id + '/UpdateParameter/', {
                 method: 'POST', // Use 'POST' or 'PUT', depending on your API requirements
                 headers: {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
+                    Id: parameter.id,
                     Name: parameter.name,
                     Value: parameter.value
                 }), // Send the active configuration as the request body

@@ -11,17 +11,19 @@ const ParameterInput = ({ parmId, onRemove, onParamChange, paramName, paramValue
     const [name, setName] = useState(paramName || '');
     const [value, setValue] = useState(paramValue || '');
     const [isModified, setIsModified] = useState(false);
-    const { updateParameter } = useConfigurationContext(); // Destructure to get state and setState
+    const { updateParameter, currentConfiguration } = useConfigurationContext(); // Destructure to get state and setState
 
-
+    var currentparm = currentConfiguration.parameters.find(e => e.id == parmId)
+    console.log(JSON.stringify(currentparm))
     useEffect(() => {
-        setIsModified(name !== paramName || value !== paramValue);
-    }, [name, value, paramName, paramValue]);
+        setIsModified(name !== currentparm.name || value !== currentparm.value);
+    }, [name, value, currentparm.name, currentparm.value]);
 
     // Handle changes to the input fields and propagate them upwards
     const handleChange = (setter) => (event) => {
         setter(event.target.value);
-        console.log("this was paramId " + parmId)
+        console.log("this is name " + name)
+        console.log("this is Paramname " + paramName)
         //onParamChange({ id: paramid, name: event.target.name, value: event.target.value });
     };
 

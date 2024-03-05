@@ -61,14 +61,14 @@ public class ConfigurationController : ControllerBase
 
     public class UpdateParameterRequest
     {
-        public required string Id {get; set;}
+        public required int Id {get; set;}
         public required string Name { get; set; }
         public required string Value { get; set; }
     }
 
   
 
-    [HttpPost("{configurationId}/Parameter")]
+    [HttpPost("{configurationId}/AddParameter")]
     public Task<Configuration> AddParameter(int configurationId, AddParameterRequest input)
     {
         var configuration = _configurationService.AddParameter(configurationId, input.Name, input.Value);
@@ -76,13 +76,10 @@ public class ConfigurationController : ControllerBase
     }
 
     [HttpPost("{configurationId}/UpdateParameter")]
-    public Task<Configuration> UpdateParameter(int configurationId, UpdateParameterRequest input)
+    public Task UpdateParameter(int configurationId, UpdateParameterRequest input)
     {
-        var configuration = _configurationService.AddParameter(configurationId, input.Name, input.Value);
-        return configuration;
+       return _configurationService.UpdateParemter(configurationId, input.Id, input.Name, input.Value);
     }
-
-
 
     [HttpPost("{paramId}/DeleteParameter")]
     public async Task DeleteParameter(int paramId)
