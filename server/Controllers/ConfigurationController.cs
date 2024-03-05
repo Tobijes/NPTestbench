@@ -69,10 +69,9 @@ public class ConfigurationController : ControllerBase
   
 
     [HttpPost("{configurationId}/AddParameter")]
-    public Task<Configuration> AddParameter(int configurationId, AddParameterRequest input)
+    public Task<int> AddParameter(int configurationId, AddParameterRequest input)
     {
-        var configuration = _configurationService.AddParameter(configurationId, input.Name, input.Value);
-        return configuration;
+        return  _configurationService.AddParameter(configurationId, input.Name, input.Value);
     }
 
     [HttpPost("{configurationId}/UpdateParameter")]

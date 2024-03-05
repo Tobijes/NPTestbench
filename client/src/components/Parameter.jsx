@@ -14,10 +14,14 @@ const ParameterInput = ({ parmId, onRemove, onParamChange, paramName, paramValue
     const { updateParameter, currentConfiguration } = useConfigurationContext(); // Destructure to get state and setState
 
     var currentparm = currentConfiguration.parameters.find(e => e.id == parmId)
-    console.log(JSON.stringify(currentparm))
     useEffect(() => {
-        setIsModified(name !== currentparm.name || value !== currentparm.value);
-    }, [name, value, currentparm.name, currentparm.value]);
+        if (currentparm) {
+            setIsModified(name !== currentparm.name || value !== currentparm.value);
+        } else {
+            // Handle the case where currentparm is undefined, maybe reset state
+            setIsModified(false);
+        }
+    }, [name, value, currentparm]);
 
     // Handle changes to the input fields and propagate them upwards
     const handleChange = (setter) => (event) => {
@@ -58,18 +62,15 @@ const ParameterInput = ({ parmId, onRemove, onParamChange, paramName, paramValue
 };
 
 const ParameterList = () => {
-    const { activeConfiguration, deleteParameter } = useConfigurationContext(); // Destructure to get state and setState
-    console.log("state" + JSON.stringify(activeConfiguration))
-    //why is state null on refresh? rewrite when figured out
-    const [localParameters, setLocalParameters] = useState(activeConfiguration.parameters.map(param => ({
-        id: param.id || Date.now(),
-        name: param.name || '',
-        value: param.value || ''
-    })))
+    const { currentConfiguration, deleteParameter, addParameter } = useConfigurationContext(); // Destructure to get state and setState
+    console.log("state" + JSON.stringify(currentConfiguration))
 
-    const addParameter = () => {
-        console.log("this is add State: " + JSON.stringify(activeConfiguration))
-        setLocalParameters([...localParameters, { id: Date.now(), name: '', value: '' }]);
+
+
+    const addParameterLocal = () => {
+        console.log("this is add State: " + JSON.stringify(currentConfiguration))
+        addParameter()
+        //setLocalParameters([...localParameters, { id: Date.now(), name: '', value: '' }]);
     };
 
     const removeParameter = (id) => {
@@ -90,13 +91,13 @@ const ParameterList = () => {
             <Box display="flex" flexWrap="wrap" alignItems="center" marginBottom={2} >
                 <h3>Parameters</h3>
                 <Box marginLeft={2}>
-                    <IconButton onClick={addParameter} color="primary">
+                    <IconButton onClick={addParameterLocal} color="primary">
                         <AddCircleOutlineIcon />
                     </IconButton>
                 </Box>
             </Box>
             <Grid container spacing={2}>
-                {localParameters.map((param) => (
+                {currentConfiguration.parameters.map((param) => (
                     <Grid item xs={12} sm={12} md={4} key={param.id}>
                         <ParameterInput
                             parmId={param.id}

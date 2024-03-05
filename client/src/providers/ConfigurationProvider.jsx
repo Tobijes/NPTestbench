@@ -9,6 +9,7 @@ const ConfigurationProvider = (props) => {
     const [configs, setConfigurations] = useState([])
 
     const [currentConfiguration, setCurrentConfiguration] = useState(null)
+    
 
 
 
@@ -62,7 +63,7 @@ const ConfigurationProvider = (props) => {
 
         console.log("this is paramter to update: " + JSON.stringify(parameter))
         try {
-            const response = await fetch('http://localhost:5000/api/Configuration/' + activeConfiguration.id + '/UpdateParameter/', {
+            const response = await fetch('http://localhost:5000/api/Configuration/' + currentConfiguration.id + '/UpdateParameter/', {
                 method: 'POST', // Use 'POST' or 'PUT', depending on your API requirements
                 headers: {
                     'Content-Type': 'application/json',
@@ -83,10 +84,61 @@ const ConfigurationProvider = (props) => {
 
     };
 
+    const addParameter = async () => {
+       /* setCurrentConfiguration((prevState) => {
+            // Check if prevState and parameters exist to avoid null reference errors
+            if (!prevState || !prevState.parameters) return prevState;
+            const newParameters = prevState.parameters.map((param) => {
+                // If the parameter ID matches, return the updated parameter, else return the original
+                console.log()
+                return param.id === parameter.id ? parameter : param;
+            });
+            console.log("parameters has been added " + JSON.stringify(newParameters))
+            return {
+                ...prevState,
+                parameters: newParameters,
+            };
+        });*/
+
+
+        console.log("paramter being added")
+        try {
+            const response = await fetch('http://localhost:5000/api/Configuration/' + currentConfiguration.id + '/AddParameter/', {
+                method: 'POST', // Use 'POST' or 'PUT', depending on your API requirements
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    Name: "",
+                    Value: "",
+                }), // Send the active configuration as the request body
+            });
+            
+            if (!response.ok) {
+                throw new Error('Failed to update the active configuration on the server');
+            }
+            var addedParameterId = await response.json()
+            setCurrentConfiguration((prevState) => {
+                console.log("prior state.:" +JSON.stringify(prevState))
+                return {
+                    ...prevState,
+                    parameters: [
+                        ...prevState.parameters,
+                        { id: addedParameterId, name: "", value: "" }
+                    ],
+                };
+            });
+
+        } catch (error) {
+            console.error('Error updating the active configuration:', error);
+        }
+
+    };
+
 
     const deleteParameter = async (parameterId) => {
-        var newParameters = activeConfiguration.parameters.filter((param) => param.id !== parameterId);
-        setActiveConfiguration((prevState) => ({
+        var newParameters = currentConfiguration.parameters.filter((param) => param.id !== parameterId);
+        setCurrentConfiguration((prevState) => ({
             ...prevState,
             parameters: newParameters,
         }));
@@ -98,7 +150,7 @@ const ConfigurationProvider = (props) => {
                     'Content-Type': 'application/json',
                 }, // Send the active configuration as the request body
             });
-            console.log("parameters has been added " + newParameters)
+            console.log("parameter has been beenDeleted " + parameterId)
             if (!response.ok) {
                 throw new Error('Failed to delete parameter');
             }
@@ -150,6 +202,7 @@ const ConfigurationProvider = (props) => {
                 configs,
                 setConfigurations,
                 updateParameter,
+                addParameter,
                 deleteParameter,
                 currentConfiguration,
                 setCurrentConfiguration

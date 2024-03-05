@@ -141,7 +141,7 @@ public class ConfigurationService
         return configuration;
     }
 
-    public async Task<Configuration> AddParameter(int configurationId, string name, string value)
+    public async Task<int> AddParameter(int configurationId, string name, string value)
     {
         await using var context = new DataContext();
         var configuration = await context.Configurations.FindAsync(configurationId) ?? throw new Exception("Configuration ID did not exist");
@@ -152,7 +152,7 @@ public class ConfigurationService
         };
         configuration.Parameters.Add(parameter);
         await context.SaveChangesAsync();
-        return configuration;
+        return parameter.Id;
     }
 
 
