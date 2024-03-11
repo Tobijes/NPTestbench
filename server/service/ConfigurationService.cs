@@ -117,6 +117,16 @@ public class ConfigurationService
         return configuration;
     }
 
+    public async Task<Configuration> GetConfigurationByID(int id)
+    {
+        await using var context = new DataContext();
+        var configuration = await context.Configurations
+            .Include(configuration => configuration.Parameters)
+            .Include(configuration => configuration.Devices)
+            .FirstAsync(c => c.Id == id) ?? throw new Exception("Configuration ID did not exist");
+        return configuration;
+    }
+
     public async Task<List<Configuration>> List(int size = 25)
     {
         await using var context = new DataContext();

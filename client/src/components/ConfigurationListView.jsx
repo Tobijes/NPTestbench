@@ -7,26 +7,17 @@ import Paper from '@mui/material/Paper';
 import { useConfigurationContext } from '../providers/ConfigurationProvider';
 
 export default function ScrollableListWithMUI() {
-   /* const [items, setItems] = React.useState([
-        { id: 1, text: 'Item 1' },
-        { id: 2, text: 'Item 2' },
-        { id: 3, text: 'Item 3' }
-    ]);*/
-    const { activeConfiguration, configs, setConfigurations, currentConfiguration, setCurrentConfiguration } = useConfigurationContext(); // Destructure to get state and setState
-
+    const {configs, currentConfiguration, setCurrentConfiguration, getConfigById, createConfiguration } = useConfigurationContext(); 
 
     const createNewItem = () => {
-        const newItem = {
-            id: configs.length + 1,
-            name: `Config ${configs.length + 1}`
-        };
-        setConfigurations([...configs, newItem]);
+        createConfiguration("New Config Name")
     };
-    console.log("current config " + currentConfiguration.id)
+    console.log("current config " + JSON.stringify(configs))
     const handleItemClick = (config) => {
-        // This is where you would load your state based on the clicked item's ID
+        getConfigById(config.id)
+        console.log("this is selected config:", JSON.stringify(config))
+
         setCurrentConfiguration(config);
-        // For demonstration, we'll just log the ID to the console
         console.log(`Item with ID ${config.id} was clicked`);
     };
 
@@ -49,9 +40,9 @@ export default function ScrollableListWithMUI() {
                         <ListItem key={item.id} disablePadding>
                             <ListItemButton onClick={() => handleItemClick(item)}
                                 sx={{
-                                    bgcolor: currentConfiguration.id === item.id ? 'primary.main' : 'inherit', // Use the theme's primary color for the selected item
+                                    bgcolor: currentConfiguration.id === item.id ? 'primary.main' : 'inherit', 
                                     '&:hover': {
-                                        bgcolor: 'primary.light' // Optional: Change on hover as well
+                                        bgcolor: 'primary.light' 
                                     }
                                 }}>
                                 

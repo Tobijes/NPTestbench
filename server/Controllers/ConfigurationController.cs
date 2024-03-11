@@ -42,15 +42,21 @@ public class ConfigurationController : ControllerBase
         return configurations;
     }
 
+    [HttpGet("GetConfigById/{id}")]
+    public Task<Configuration> GetConfigurationByID(int id)
+    {
+        return _configurationService.GetConfigurationByID(id);
+    }
+
+
     public class CreateConfigurationRequest
     {
         public required string Name { get; set; }
     }
-    [HttpPost]
+    [HttpPost("CreateConfiguration")]
     public Task<Configuration> CreateConfiguration(CreateConfigurationRequest input)
     {
-        var configuration = _configurationService.Create(input.Name);
-        return configuration;
+        return _configurationService.Create(input.Name);
     }
 
     public class AddParameterRequest

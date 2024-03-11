@@ -9,7 +9,7 @@ const ConfigurationProvider = (props) => {
     const [configs, setConfigurations] = useState([])
 
     const [currentConfiguration, setCurrentConfiguration] = useState(null)
-    
+
 
 
 
@@ -59,7 +59,7 @@ const ConfigurationProvider = (props) => {
                 parameters: newParameters,
             };
         });
-       
+
 
         console.log("this is paramter to update: " + JSON.stringify(parameter))
         try {
@@ -85,22 +85,6 @@ const ConfigurationProvider = (props) => {
     };
 
     const addParameter = async () => {
-       /* setCurrentConfiguration((prevState) => {
-            // Check if prevState and parameters exist to avoid null reference errors
-            if (!prevState || !prevState.parameters) return prevState;
-            const newParameters = prevState.parameters.map((param) => {
-                // If the parameter ID matches, return the updated parameter, else return the original
-                console.log()
-                return param.id === parameter.id ? parameter : param;
-            });
-            console.log("parameters has been added " + JSON.stringify(newParameters))
-            return {
-                ...prevState,
-                parameters: newParameters,
-            };
-        });*/
-
-
         console.log("paramter being added")
         try {
             const response = await fetch('http://localhost:5000/api/Configuration/' + currentConfiguration.id + '/AddParameter/', {
@@ -111,15 +95,15 @@ const ConfigurationProvider = (props) => {
                 body: JSON.stringify({
                     Name: "",
                     Value: "",
-                }), // Send the active configuration as the request body
+                }),
             });
-            
+
             if (!response.ok) {
                 throw new Error('Failed to update the active configuration on the server');
             }
             var addedParameterId = await response.json()
             setCurrentConfiguration((prevState) => {
-                console.log("prior state.:" +JSON.stringify(prevState))
+                console.log("prior state.:" + JSON.stringify(prevState))
                 return {
                     ...prevState,
                     parameters: [
@@ -162,10 +146,6 @@ const ConfigurationProvider = (props) => {
     };
 
     useEffect(() => {
-        console.log("configs added")
-    }, [configs]);
-
-    useEffect(() => {
         const fetchActiveConfig = async () => {
             try {
                 const response = await fetch('http://localhost:5000/api/Configuration');
@@ -179,6 +159,8 @@ const ConfigurationProvider = (props) => {
 
         fetchActiveConfig();
     }, []);
+
+
 
     useEffect(() => {
         const fetchConfigs = async () => {
@@ -194,6 +176,53 @@ const ConfigurationProvider = (props) => {
         fetchConfigs();
     }, []);
 
+    const getConfigById = async (configId) => {
+        try {
+            const response = await fetch('http://localhost:5000/api/Configuration/GetConfigById/' + configId, {
+                method: 'GET', // Use 'POST' or 'PUT', depending on your API requirements
+                headers: {
+                    'Content-Type': 'application/json',
+                }, // Send the active configuration as the request body
+            });
+            if (!response.ok) {
+                throw new Error('Failed to fetch config by id');
+            }
+            const data = await response.json()
+            setCurrentConfiguration(data);
+
+
+        } catch (error) {
+            console.error('Failed to fetch config by id:', error);
+        }
+
+    };
+
+
+    const createConfiguration = async (configName) => {
+        try {
+            const response = await fetch('http://localhost:5000/api/Configuration/CreateConfiguration/', {
+                method: 'POST', // Use 'POST' or 'PUT', depending on your API requirements
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    Name: configName
+                })
+
+            });
+            if (!response.ok) {
+                throw new Error('Failed to create config');
+            }
+            const data = await response.json()
+            setCurrentConfiguration(data);
+            setConfigurations([...configs, data])
+
+
+        } catch (error) {
+            console.error('Failed to create config:', error);
+        }
+
+    };
     return (
         <ConfigurationContext.Provider value={
             {
@@ -205,7 +234,9 @@ const ConfigurationProvider = (props) => {
                 addParameter,
                 deleteParameter,
                 currentConfiguration,
-                setCurrentConfiguration
+                setCurrentConfiguration,
+                getConfigById,
+                createConfiguration
             }
         }>
             {props.children}
