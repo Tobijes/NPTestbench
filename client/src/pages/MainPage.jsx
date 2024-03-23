@@ -1,11 +1,11 @@
 // View1.js
 import { Box, Button, Container, Divider, Grid, Stack, Typography } from '@mui/material';
 import React from 'react';
-import Diagram from '../components/Diagram';
 import ValveLine from '../components/ValveLine';
 import RunPanel from '../components/RunPanel';
 import RunProvider from '../providers/RunProvider';
 import CommandProvider from '../providers/CommandProvider';
+import DataDiagramController from '../components/DataDiagram';
 
 const MainPage = () => {
   return <Box>
@@ -17,9 +17,9 @@ const MainPage = () => {
             <Typography variant='h4'>
               Data
             </Typography>
-            <Button variant="contained">Reset</Button>
+            <Button variant="contained" disabled={true}>Reset</Button>
           </Stack>
-          <Diagram />
+          <DataDiagramController />
         </Stack>
         <Stack spacing={2}>
           <Typography variant='h4'>

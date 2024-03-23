@@ -62,7 +62,7 @@ public class CommunicationService
                 Array.Reverse(bytes);
             }
             float value = ConvertBytes(device.DataType, bytes);
-            results[i] = value * (DateTime.UtcNow.Millisecond % 5);
+            results[i] = value * (DateTime.UtcNow.Millisecond % 15);
         }
 
         return results;

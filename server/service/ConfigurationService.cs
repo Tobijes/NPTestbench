@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using NPTestbench.Models;
+using NPTestbench.Service.Templates;
 
 public class ConfigurationService
 {
@@ -15,68 +16,18 @@ public class ConfigurationService
         {
             defaultConfiguration = new Configuration()
             {
-                Name = "Default",
+                Name = "Default: Stage 1 and 2, vacuum chamber",
                 CreatedAt = DateTime.Now,
                 UpdatedAt = DateTime.Now,
-
             };
             context.Configurations.Add(defaultConfiguration);
             context.SaveChanges();
 
-            var parm1 = new Parameter()
-            {
-                Name = "DefaultParm",
-                Value = "DefaulVal",
-                ConfigurationId = defaultConfiguration.Id,
-            };
-
-            var parm2 = new Parameter()
-            {
-                Name = "DefaultParm2",
-                Value = "DefaulVal2",
-                ConfigurationId = defaultConfiguration.Id,
-            };
-
-
-            var device = new Device()
-            {
-                Name = "DefaultDevice1",
-                StartAddress = 0,
-                DataType = DeviceDataType.Float32,
-                DrawingID = "Temp1",
-                ConfigurationId = defaultConfiguration.Id
-            };
-
-            var device2 = new Device()
-            {
-                Name = "DefaultDevice2",
-                StartAddress = 4,
-                DataType = DeviceDataType.Float32,
-                DrawingID = "Pres1",
-                ConfigurationId = defaultConfiguration.Id
-            };
-
-            var valve1 = new Device()
-            {
-                Name = "Valve 1",
-                StartAddress = 8,
-                DataType = DeviceDataType.UInt16,
-                ConfigurationId = defaultConfiguration.Id
-            };
-
-            var valve2 = new Device()
-            {
-                Name = "Valve 2",
-                StartAddress = 10,
-                DataType = DeviceDataType.UInt16,
-                DrawingID = "Pres1",
-                ConfigurationId = defaultConfiguration.Id
-            };
-            context.Parameters.AddRange([parm1, parm2]);
-            context.Devices.Add(device);
-            context.Devices.Add(device2);
-            context.Devices.Add(valve1);
-            context.Devices.Add(valve2);
+            var templateParameters = ConfigurationTemplateFactory.GenerateTemplateParameters(ConfigurationTemplateType.STAGE_1_2_VACUUM_CHAMBER, defaultConfiguration.Id);
+            context.Parameters.AddRange(templateParameters);
+            
+            var templateDevices = ConfigurationTemplateFactory.GenerateTemplateDevices(ConfigurationTemplateType.STAGE_1_2_VACUUM_CHAMBER, defaultConfiguration.Id);
+            context.Devices.AddRange(templateDevices);
 
             context.SaveChanges();
         }
