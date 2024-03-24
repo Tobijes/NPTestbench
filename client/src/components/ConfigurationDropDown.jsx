@@ -7,12 +7,12 @@ import Select from '@mui/material/Select';
 import { useConfigurationContext } from '../providers/ConfigurationProvider';
 
 export default function ConfigurationDropDown() {
-    const { activeConfiguration, setSctiveConfiguration, configs} = useConfigurationContext(); // Destructure to get state and setState
+    const { activeConfiguration, setActiveConfiguration, configs} = useConfigurationContext(); // Destructure to get state and setState
     const handleChange = (event) => {
         const selectedConfigId = event.target.value;     
         const selectedConfig = configs.find(config => config.id.toString() == selectedConfigId);
         if (selectedConfig) {
-            setSctiveConfiguration(selectedConfig);
+            setActiveConfiguration(selectedConfig);
         }
     };
     return (

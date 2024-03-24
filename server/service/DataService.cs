@@ -11,6 +11,7 @@ public class DataService : BackgroundService, IDisposable
     private const int SAMPLE_DELAY_HIGH = 1000 / 3;
     private int? _runId;
 
+    Device[] devices = [];
     private DataNotifier.DataState _dataState;
 
     public DataService(ConfigurationService configurationService, DataNotifier dataNotifier, CommunicationService communicationService)
@@ -19,23 +20,17 @@ public class DataService : BackgroundService, IDisposable
         _dataNotifier = dataNotifier;
         _communcationService = communicationService;
         _dataState = new DataNotifier.DataState();
+
+        _configurationService.ActiveConfigurationChanged += async () => {
+            devices = (await _configurationService.GetActiveConfiguration()).Devices.ToArray(); 
+        };
     }
 
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        Device[] devices = (await _configurationService.GetActiveConfiguration()).Devices.ToArray();
-        int? lastRunId = null;
-
-
         while (!stoppingToken.IsCancellationRequested)
         {
-            if (_runId != null && lastRunId == null)
-            { // Run Started
-                // TODO: Refresh devices (make event-based instead)
-                devices = (await _configurationService.GetActiveConfiguration()).Devices.ToArray();
-            }
-
             float[] values = await _communcationService.ReadDevices(devices);
 
             // Only save to log if we are running

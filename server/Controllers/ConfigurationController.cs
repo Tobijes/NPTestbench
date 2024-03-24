@@ -48,15 +48,26 @@ public class ConfigurationController : ControllerBase
         return _configurationService.GetConfigurationByID(id);
     }
 
-
     public class CreateConfigurationRequest
     {
         public required string Name { get; set; }
     }
+
     [HttpPost("CreateConfiguration")]
     public Task<Configuration> CreateConfiguration(CreateConfigurationRequest input)
     {
         return _configurationService.Create(input.Name);
+    }
+
+    public class CloneConfigurationRequest
+    {
+        public required int Id { get; set; }
+    }
+
+    [HttpPost("Clone")]
+    public Task<Configuration> CloneConfiguration(CloneConfigurationRequest input)
+    {
+        return _configurationService.Clone(input.Id);
     }
 
     public class AddParameterRequest
@@ -83,13 +94,13 @@ public class ConfigurationController : ControllerBase
     [HttpPost("{configurationId}/UpdateParameter")]
     public Task UpdateParameter(int configurationId, UpdateParameterRequest input)
     {
-       return _configurationService.UpdateParemter(configurationId, input.Id, input.Name, input.Value);
+       return _configurationService.UpdateParameter(configurationId, input.Id, input.Name, input.Value);
     }
 
-    [HttpPost("{paramId}/DeleteParameter")]
-    public async Task DeleteParameter(int paramId)
+    [HttpPost("{parameterId}/DeleteParameter")]
+    public async Task DeleteParameter(int parameterId)
     {
-         await _configurationService.DeleteParameter(paramId);
+         await _configurationService.DeleteParameter(parameterId);
     }
 
     public class AddDeviceRequest

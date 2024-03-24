@@ -5,6 +5,7 @@ namespace NPTestbench.Service.Templates;
 
 public enum ConfigurationTemplateType
 {
+    BLANK,
     STAGE_1_2_VACUUM_CHAMBER,
     STAGE_1_2_ORIFICE_PLATE,
     STAGE_2_ORIFICE_PLATE
@@ -16,6 +17,13 @@ public record ParameterTemplate(string Name, string Value);
 
 public class ConfigurationTemplateFactory
 {
+
+    public static Dictionary<ConfigurationTemplateType, string> DefaultNames = new Dictionary<ConfigurationTemplateType, string>{
+            {ConfigurationTemplateType.BLANK, "Default: Blank"},
+            {ConfigurationTemplateType.STAGE_1_2_VACUUM_CHAMBER, "Default: Stage 1 and 2, vacuum chamber"},
+            {ConfigurationTemplateType.STAGE_1_2_ORIFICE_PLATE, "Default: Stage 1 and 2, orifice plate"},
+            {ConfigurationTemplateType.STAGE_2_ORIFICE_PLATE, "Default: Stage 2, orifice plate"},
+        };
     static DeviceTemplate[] DefaultDevices = [
             new("TF-VC-1", 0, DeviceDataType.Float32, "TF-VC-1"),
             new("PT-VC-1", 2, DeviceDataType.Float32, "PT-VC-1"),
@@ -36,6 +44,7 @@ public class ConfigurationTemplateFactory
             new("PT-S2-2", 22, DeviceDataType.Float32, "PT-S2-2"),
         ];
     static Dictionary<ConfigurationTemplateType, DeviceTemplate[]> DeviceTemplates = new Dictionary<ConfigurationTemplateType, DeviceTemplate[]>{
+        {ConfigurationTemplateType.BLANK, DefaultDevices},
         {ConfigurationTemplateType.STAGE_1_2_VACUUM_CHAMBER, DefaultDevices},
         {ConfigurationTemplateType.STAGE_1_2_ORIFICE_PLATE, DefaultDevices},
         {ConfigurationTemplateType.STAGE_2_ORIFICE_PLATE, DefaultDevices},
@@ -57,6 +66,7 @@ public class ConfigurationTemplateFactory
     ];
 
     static Dictionary<ConfigurationTemplateType, ParameterTemplate[]> ParameterTemplates = new Dictionary<ConfigurationTemplateType, ParameterTemplate[]>{
+        {ConfigurationTemplateType.BLANK, []},
         {ConfigurationTemplateType.STAGE_1_2_VACUUM_CHAMBER, [
             new(DefaultParameterNames[0], ""),
             new(DefaultParameterNames[1], ""),

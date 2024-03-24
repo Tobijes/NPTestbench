@@ -2,10 +2,12 @@ using Microsoft.EntityFrameworkCore;
 using NPTestbench.Models;
 using NPTestbench.Service.Templates;
 
+public delegate void Notify();  // delegate
 public class ConfigurationService
 {
 
     private Configuration _activeConfiguration;
+    public event Notify ActiveConfigurationChanged; // event
 
     public ConfigurationService()
     {
@@ -14,25 +16,33 @@ public class ConfigurationService
         var defaultConfiguration = context.Configurations.FirstOrDefault();
         if (defaultConfiguration == null)
         {
-            defaultConfiguration = new Configuration()
+            BootstrapDatabase();
+        }
+        _activeConfiguration = context.Configurations.FirstOrDefault()!;
+        ActiveConfigurationChanged?.Invoke();
+    }
+
+    private void BootstrapDatabase() {
+        using var context = new DataContext();
+        
+        foreach (KeyValuePair<ConfigurationTemplateType, string> entry in ConfigurationTemplateFactory.DefaultNames) {
+            var configuration = new Configuration()
             {
-                Name = "Default: Stage 1 and 2, vacuum chamber",
+                Name = entry.Value,
                 CreatedAt = DateTime.Now,
                 UpdatedAt = DateTime.Now,
             };
-            context.Configurations.Add(defaultConfiguration);
+            context.Configurations.Add(configuration);
             context.SaveChanges();
 
-            var templateParameters = ConfigurationTemplateFactory.GenerateTemplateParameters(ConfigurationTemplateType.STAGE_1_2_VACUUM_CHAMBER, defaultConfiguration.Id);
+            var templateParameters = ConfigurationTemplateFactory.GenerateTemplateParameters(entry.Key, configuration.Id);
             context.Parameters.AddRange(templateParameters);
-            
-            var templateDevices = ConfigurationTemplateFactory.GenerateTemplateDevices(ConfigurationTemplateType.STAGE_1_2_VACUUM_CHAMBER, defaultConfiguration.Id);
+
+            var templateDevices = ConfigurationTemplateFactory.GenerateTemplateDevices(entry.Key, configuration.Id);
             context.Devices.AddRange(templateDevices);
 
             context.SaveChanges();
         }
-
-        _activeConfiguration = context.Configurations.FirstOrDefault()!;
     }
 
     public async Task<Configuration> GetById(int id)
@@ -54,6 +64,7 @@ public class ConfigurationService
             .FirstAsync(c => c.Id == id) ?? throw new Exception("Configuration ID did not exist");
 
         _activeConfiguration = configuration;
+        ActiveConfigurationChanged?.Invoke();
         System.Console.WriteLine("active config is now: " + _activeConfiguration.Id);
 
     }
@@ -102,6 +113,49 @@ public class ConfigurationService
         return configuration;
     }
 
+    public async Task<Configuration> Clone(int configurationId)
+    {
+        await using var context = new DataContext();
+        var oldConfiguration = await GetConfigurationByID(configurationId);
+
+        var newConfiguration = new Configuration()
+        {
+            Name = oldConfiguration.Name + " - Copy",
+            CreatedAt = DateTime.Now,
+            UpdatedAt = DateTime.Now,
+        };
+
+        context.Configurations.Add(newConfiguration);
+        await context.SaveChangesAsync();
+        
+        // Clone parameters (without relation)
+        foreach (var parameter in  oldConfiguration.Parameters)
+        {
+            context.Parameters.Add(new Parameter()
+            {
+                Name = parameter.Name,
+                Value = parameter.Value,
+                ConfigurationId = newConfiguration.Id
+            });
+        }
+
+        // Clone devices (without relation)
+        foreach (var device in oldConfiguration.Devices)
+        {
+            context.Devices.Add(new Device()
+            {
+                Name = device.Name,
+                StartAddress = device.StartAddress,
+                DataType = device.DataType,
+                DrawingID = device.DrawingID,
+                ConfigurationId = newConfiguration.Id
+            });
+        }
+
+        await context.SaveChangesAsync();
+        return newConfiguration;
+    }
+
     public async Task<int> AddParameter(int configurationId, string name, string value)
     {
         await using var context = new DataContext();
@@ -117,7 +171,7 @@ public class ConfigurationService
     }
 
 
-    public async Task UpdateParemter(int configurationId, int Id, string name, string value)
+    public async Task UpdateParameter(int configurationId, int Id, string name, string value)
     {
         await using var context = new DataContext();
         var configuration = await context.Configurations.Include(configuration => configuration.Parameters).FirstAsync(config => config.Id == configurationId) ?? throw new Exception("Configuration ID did not exist");
