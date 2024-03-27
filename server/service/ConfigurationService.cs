@@ -89,16 +89,14 @@ public class ConfigurationService
         return items;
     }
 
-    public async Task<Configuration> Create(String configurationName)
+    public async Task<Configuration> Rename(int configurationId, string name)
     {
         await using var context = new DataContext();
-        var configuration = new Configuration()
-        {
-            Name = configurationName,
-            CreatedAt = DateTime.Now,
-            UpdatedAt = DateTime.Now,
-        };
-        context.Configurations.Add(configuration);
+           var configuration = await context.Configurations
+            .Include(configuration => configuration.Parameters)
+            .Include(configuration => configuration.Devices)
+            .FirstAsync(c => c.Id == configurationId) ?? throw new Exception("Configuration ID did not exist");
+        configuration.Name = name;
         await context.SaveChangesAsync();
         return configuration;
     }

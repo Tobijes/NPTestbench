@@ -44,15 +44,16 @@ public class ConfigurationController : ControllerBase
        return configuration;
     }
 
-    public class CreateConfigurationRequest
+    public class RenameConfigurationRequest
     {
         public required string Name { get; set; }
     }
 
-    [HttpPost("CreateConfiguration")]
-    public Task<Configuration> CreateConfiguration(CreateConfigurationRequest input)
+    [HttpPost("{configurationId}/Rename")]
+    public async Task<Configuration> RenameConfiguration(int configurationId, RenameConfigurationRequest input)
     {
-        return _configurationService.Create(input.Name);
+        var configuration = await _configurationService.Rename(configurationId, input.Name);
+        return configuration;
     }
 
     [HttpPost("{configurationId}/Clone")]

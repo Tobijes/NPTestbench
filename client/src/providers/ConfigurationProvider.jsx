@@ -20,6 +20,15 @@ const ConfigurationProvider = (props) => {
         }
     }, [activeConfiguration]); // Run this effect when `state` changes
 
+    const fetchConfigs = async () => {
+        const configurations = await apiGet('/api/configuration')
+        setConfigurations(configurations);
+    };
+
+    useEffect(() => {
+        fetchConfigs();
+    }, []);
+
 
     const updateParameter = async (parameter) => {
         setCurrentConfiguration((prevState) => {
@@ -91,15 +100,6 @@ const ConfigurationProvider = (props) => {
 
 
 
-    useEffect(() => {
-        const fetchConfigs = async () => {
-            const configurations = await apiGet('/api/configuration')
-            setConfigurations(configurations);
-        };
-
-        fetchConfigs();
-    }, []);
-
     const getConfigById = async (configId) => {
         const configuration = await apiGet('/api/configuration/' + configId)
         setCurrentConfiguration(configuration);
@@ -110,6 +110,14 @@ const ConfigurationProvider = (props) => {
         const configuration = await apiPost("/api/configuration/" + currentConfiguration.id + "/clone", {})
         setCurrentConfiguration(configuration);
         setConfigurations([...configs, configuration])
+    };
+
+    const renameConfiguration = async (name) => {
+        const configuration = await apiPost("/api/configuration/" + currentConfiguration.id + "/rename", {
+            name: name
+        })
+        await fetchConfigs();
+        setCurrentConfiguration(configuration);
     };
 
     return (
@@ -124,7 +132,8 @@ const ConfigurationProvider = (props) => {
                 currentConfiguration,
                 setCurrentConfiguration,
                 getConfigById,
-                cloneConfiguration
+                cloneConfiguration,
+                renameConfiguration
             }
         }>
             {props.children}

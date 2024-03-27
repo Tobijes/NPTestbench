@@ -4,6 +4,7 @@ import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import EditIcon from '@mui/icons-material/Edit';
 import { useConfigurationContext } from '../providers/ConfigurationProvider';
 import ParameterPane from './Parameter';
+import RenameDialog from './RenameDialog';
 
 
 const ConfigurationPane = () => {
@@ -21,7 +22,7 @@ const ConfigurationPane = () => {
                 <Typography variant='h6'>{currentConfiguration.name}</Typography>
             </Stack>
             <Stack direction="row" spacing={2} >
-                <Button variant="contained" startIcon={<EditIcon />}>Rename</Button>
+                <RenameDialog />
                 <Button variant="contained" startIcon={<ContentCopyIcon />} onClick={cloneConfiguration}>Duplicate</Button>
             </Stack>
         </Stack>
