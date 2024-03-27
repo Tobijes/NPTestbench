@@ -18,7 +18,7 @@ export default function ConfigurationDropDown() {
     return (
         <Box sx={{ minWidth: 250 }}>
             <FormControl fullWidth>
-                <InputLabel id="configuration-select-label">Configuration</InputLabel>
+                <InputLabel id="configuration-select-label">Active Configuration</InputLabel>
                 <Select
                     labelId="configuration-select-label"
                     id="demo-simple-select"

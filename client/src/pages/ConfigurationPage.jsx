@@ -1,37 +1,19 @@
 import * as React from 'react';
-import Box from '@mui/material/Box';import Grid from '@mui/material/Grid';
+import Box from '@mui/material/Box'; import Grid from '@mui/material/Grid';
 import ParameterList from '../components/Parameter';
 import ScrollableList from '../components/ConfigurationListView';
+import { Divider, Stack, Typography } from '@mui/material';
+import ParameterPane from '../components/Parameter';
 
 const ConfigurationPage = () => {
-  return <Grid container spacing={2}>
-    <Grid item xs={2}>
-      <h4>Template drop down</h4>
-    </Grid>
-    <Grid item xs={10}>
-      <h4>NAme of config (align better)</h4>
-    </Grid>
-    <Grid item xs={4}>
 
-    </Grid>
-    <Grid item xs={8}>
-
-    </Grid>
-    <Grid item xs={2}>
-      <ScrollableList/>
-    </Grid>
-    <Grid item xs={10}>
-      <Box>
-        <ParameterList />
-      </Box>
-    </Grid>
-    <Grid item xs={4}>
-   
-    </Grid>
-    <Grid item xs={8}>
-      
-    </Grid>
-  </Grid>
+  return <Stack direction="row" spacing={8}>
+    <Stack direction="column">
+      <Typography variant='h6'>Configurations</Typography>
+      <ScrollableList />
+    </Stack>
+    <ParameterPane />
+  </Stack>
 
 
 };

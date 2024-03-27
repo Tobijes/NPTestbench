@@ -1,17 +1,19 @@
 import React, { useState, useEffect } from 'react';
-import { Box, TextField, IconButton, Container, Button, Grid } from '@mui/material';
+import { Box, TextField, IconButton, Container, Button, Grid, Stack, Typography, Divider } from '@mui/material';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
+import ContentCopyIcon from '@mui/icons-material/ContentCopy';
+import EditIcon from '@mui/icons-material/Edit';
 import HighlightOffIcon from '@mui/icons-material/HighlightOff';
 import { useConfigurationContext } from '../providers/ConfigurationProvider';
 import SaveIcon from '@mui/icons-material/Save'; // Importing the Save icon
 
 
-const ParameterInput = ({ parmId, onRemove, paramName, paramValue }) => {
+const ParameterInput = ({ parmId, paramName, paramValue }) => {
     // Local state to manage input values
     const [name, setName] = useState(paramName || '');
     const [value, setValue] = useState(paramValue || '');
     const [isModified, setIsModified] = useState(false);
-    const { updateParameter, currentConfiguration } = useConfigurationContext(); // Destructure to get state and setState
+    const { updateParameter, deleteParameter, currentConfiguration } = useConfigurationContext(); // Destructure to get state and setState
 
     var currentparm = currentConfiguration.parameters.find(e => e.id == parmId)
     useEffect(() => {
@@ -30,16 +32,20 @@ const ParameterInput = ({ parmId, onRemove, paramName, paramValue }) => {
         console.log("this is Paramname " + paramName)
     };
 
-
-
     return (
-        <Box display="flex" alignItems="center" gap={2} marginBottom={2}>
+        <Stack direction="row" spacing={2} alignItems="center">
+            <Box>
+                <IconButton onClick={() => deleteParameter(parmId)} color="error">
+                    <HighlightOffIcon />
+                </IconButton>
+            </Box>
             <TextField
                 label="Parameter Name"
                 variant="outlined"
                 name="name"
                 value={name}
                 onChange={handleChange(setName)}
+                fullWidth={true}
             />
             <TextField
                 label="Value"
@@ -47,61 +53,57 @@ const ParameterInput = ({ parmId, onRemove, paramName, paramValue }) => {
                 name="value"
                 value={value}
                 onChange={handleChange(setValue)}
+                fullWidth={false}
             />
-            <Box display="flex" flexDirection="column" alignItems="center" gap={1}>
-                <IconButton onClick={onRemove} color="error">
-                    <HighlightOffIcon />
-                </IconButton>
-                <IconButton onClick={() => updateParameter({ id: parmId, name: name, value: value })}>
-                    <SaveIcon color={isModified ? 'primary' : 'disabled'} /> {/* Dynamically change color */}
+            <Box>
+                <IconButton onClick={() => updateParameter({ id: parmId, name: name, value: value })} disabled={!isModified}>
+                    <SaveIcon color={isModified ? 'primary' : 'disabled'} />
                 </IconButton>
             </Box>
-        </Box>
+        </Stack>
     );
 };
 
-const ParameterList = () => {
-    const { currentConfiguration, deleteParameter, addParameter } = useConfigurationContext(); // Destructure to get state and setState
-    console.log("state" + JSON.stringify(currentConfiguration))
+const ParameterPane = () => {
+    const { currentConfiguration, addParameter } = useConfigurationContext();
 
+    if (currentConfiguration == null) {
+        return <Box></Box>
+    }
 
+    return <Stack direction="column" spacing={4} flexGrow={1}>
+        <Stack direction="row" justifyContent="space-between" alignItems="center" >
+            <Stack direction='column'>
+                <Typography variant='body'>Configuration:</Typography>
+                <Typography variant='h6'>{currentConfiguration.name}</Typography>
+            </Stack>
+            <Stack direction="row" spacing={2} >
+                <Button variant="contained" startIcon={<EditIcon />}>Rename</Button>
+                <Button variant="contained" startIcon={<ContentCopyIcon />}>Duplicate</Button>
+            </Stack>
+        </Stack>
 
-    const addParameterLocal = () => {
-        console.log("this is add State: " + JSON.stringify(currentConfiguration))
-        addParameter()
-    };
+        <Divider />
+        <Stack direction="column" spacing={2}>
+            <Stack direction="row" justifyContent="space-between">
+                <Typography variant='h6'>Parameters</Typography>
+                <Button variant="contained" startIcon={<AddCircleOutlineIcon />} onClick={addParameter}>Add parameter</Button>
+            </Stack>
 
-    const removeParameter = (id) => {
-        deleteParameter(id);
-    };
-
-
-
-    return (
-        <Container>
-            <Box display="flex" flexWrap="wrap" alignItems="center" marginBottom={2} >
-                <h3>Parameters</h3>
-                <Box marginLeft={2}>
-                    <IconButton onClick={addParameterLocal} color="primary">
-                        <AddCircleOutlineIcon />
-                    </IconButton>
-                </Box>
-            </Box>
-            <Grid container spacing={2}>
+            <Grid container rowSpacing={4} columnSpacing={8} sx={{ marginLeft: "-64px !important" }}> {/* Alignment must be bug in grid impl. This fixes for now */}
                 {currentConfiguration.parameters.map((param) => (
-                    <Grid item xs={12} sm={12} md={4} key={param.id}>
+                    <Grid item md={12} lg={6} key={param.id} > {/*xs={12} sm={12} md={12} lg={4}*/}
                         <ParameterInput
                             parmId={param.id}
                             paramName={param.name}
                             paramValue={param.value}
-                            onRemove={() => removeParameter(param.id)}
                         />
                     </Grid>
                 ))}
             </Grid>
-        </Container>
+        </Stack>
+    </Stack>
 
-    );
-};
+}
 
-export default ParameterList;
+export default ParameterPane;
