@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Box, TextField, IconButton, Container, Button, Grid, Stack, Typography, Divider } from '@mui/material';
+import { Box, TextField, IconButton, Button, Grid, Stack, Typography } from '@mui/material';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
-import ContentCopyIcon from '@mui/icons-material/ContentCopy';
-import EditIcon from '@mui/icons-material/Edit';
 import HighlightOffIcon from '@mui/icons-material/HighlightOff';
 import { useConfigurationContext } from '../providers/ConfigurationProvider';
 import SaveIcon from '@mui/icons-material/Save'; // Importing the Save icon
@@ -71,38 +69,24 @@ const ParameterPane = () => {
         return <Box></Box>
     }
 
-    return <Stack direction="column" spacing={4} flexGrow={1}>
-        <Stack direction="row" justifyContent="space-between" alignItems="center" >
-            <Stack direction='column'>
-                <Typography variant='body'>Configuration:</Typography>
-                <Typography variant='h6'>{currentConfiguration.name}</Typography>
-            </Stack>
-            <Stack direction="row" spacing={2} >
-                <Button variant="contained" startIcon={<EditIcon />}>Rename</Button>
-                <Button variant="contained" startIcon={<ContentCopyIcon />}>Duplicate</Button>
-            </Stack>
-        </Stack>
-
-        <Divider />
-        <Stack direction="column" spacing={2}>
-            <Stack direction="row" justifyContent="space-between">
-                <Typography variant='h6'>Parameters</Typography>
-                <Button variant="contained" startIcon={<AddCircleOutlineIcon />} onClick={addParameter}>Add parameter</Button>
-            </Stack>
-
-            <Grid container rowSpacing={4} columnSpacing={8} sx={{ marginLeft: "-64px !important" }}> {/* Alignment must be bug in grid impl. This fixes for now */}
-                {currentConfiguration.parameters.map((param) => (
-                    <Grid item md={12} lg={6} key={param.id} > {/*xs={12} sm={12} md={12} lg={4}*/}
-                        <ParameterInput
-                            parmId={param.id}
-                            paramName={param.name}
-                            paramValue={param.value}
-                        />
-                    </Grid>
-                ))}
-            </Grid>
-        </Stack>
+    return <Stack direction="column" spacing={2}>
+    <Stack direction="row" justifyContent="space-between">
+        <Typography variant='h6'>Parameters</Typography>
+        <Button variant="contained" startIcon={<AddCircleOutlineIcon />} onClick={addParameter}>Add parameter</Button>
     </Stack>
+
+    <Grid container rowSpacing={4} columnSpacing={8} sx={{ marginLeft: "-64px !important" }}> {/* Alignment must be bug in grid impl. This fixes for now */}
+        {currentConfiguration.parameters.map((param) => (
+            <Grid item md={12} lg={6} key={param.id} > {/*xs={12} sm={12} md={12} lg={4}*/}
+                <ParameterInput
+                    parmId={param.id}
+                    paramName={param.name}
+                    paramValue={param.value}
+                />
+            </Grid>
+        ))}
+    </Grid>
+</Stack>
 
 }
 

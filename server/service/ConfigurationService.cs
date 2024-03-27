@@ -55,7 +55,7 @@ public class ConfigurationService
         return configuration;
     }
 
-    public async Task SetActiveConfig(int id)
+    public async Task<Configuration> SetActiveConfig(int id)
     {
         await using var context = new DataContext();
         var configuration = await context.Configurations
@@ -65,8 +65,8 @@ public class ConfigurationService
 
         _activeConfiguration = configuration;
         ActiveConfigurationChanged?.Invoke();
-        System.Console.WriteLine("active config is now: " + _activeConfiguration.Id);
-
+        Console.WriteLine("active config is now: " + _activeConfiguration.Id);
+        return _activeConfiguration;
     }
 
     public async Task<Configuration> GetActiveConfiguration()
@@ -76,16 +76,6 @@ public class ConfigurationService
             .Include(configuration => configuration.Parameters)
             .Include(configuration => configuration.Devices)
             .FirstAsync(c => c.Id == _activeConfiguration.Id) ?? throw new Exception("Configuration ID did not exist");
-        return configuration;
-    }
-
-    public async Task<Configuration> GetConfigurationByID(int id)
-    {
-        await using var context = new DataContext();
-        var configuration = await context.Configurations
-            .Include(configuration => configuration.Parameters)
-            .Include(configuration => configuration.Devices)
-            .FirstAsync(c => c.Id == id) ?? throw new Exception("Configuration ID did not exist");
         return configuration;
     }
 
@@ -116,7 +106,7 @@ public class ConfigurationService
     public async Task<Configuration> Clone(int configurationId)
     {
         await using var context = new DataContext();
-        var oldConfiguration = await GetConfigurationByID(configurationId);
+        var oldConfiguration = await GetById(configurationId);
 
         var newConfiguration = new Configuration()
         {
@@ -156,7 +146,7 @@ public class ConfigurationService
         return newConfiguration;
     }
 
-    public async Task<int> AddParameter(int configurationId, string name, string value)
+    public async Task<Parameter> AddParameter(int configurationId, string name, string value)
     {
         await using var context = new DataContext();
         var configuration = await context.Configurations.FindAsync(configurationId) ?? throw new Exception("Configuration ID did not exist");
@@ -167,11 +157,11 @@ public class ConfigurationService
         };
         configuration.Parameters.Add(parameter);
         await context.SaveChangesAsync();
-        return parameter.Id;
+        return parameter;
     }
 
 
-    public async Task UpdateParameter(int configurationId, int Id, string name, string value)
+    public async Task<Parameter> UpdateParameter(int configurationId, int Id, string name, string value)
     {
         await using var context = new DataContext();
         var configuration = await context.Configurations.Include(configuration => configuration.Parameters).FirstAsync(config => config.Id == configurationId) ?? throw new Exception("Configuration ID did not exist");
@@ -179,6 +169,8 @@ public class ConfigurationService
         parameter.Name = name;
         parameter.Value = value;
         await context.SaveChangesAsync();
+
+        return parameter;
     }
 
     public async Task DeleteParameter(int parameterId)

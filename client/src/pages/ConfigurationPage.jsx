@@ -1,9 +1,7 @@
 import * as React from 'react';
-import Box from '@mui/material/Box'; import Grid from '@mui/material/Grid';
-import ParameterList from '../components/Parameter';
-import ScrollableList from '../components/ConfigurationListView';
-import { Divider, Stack, Typography } from '@mui/material';
-import ParameterPane from '../components/Parameter';
+ import ScrollableList from '../components/ConfigurationListView';
+import { Stack, Typography } from '@mui/material';
+import ConfigurationPane from '../components/ConfigurationPane';
 
 const ConfigurationPage = () => {
 
@@ -12,7 +10,7 @@ const ConfigurationPage = () => {
       <Typography variant='h6'>Configurations</Typography>
       <ScrollableList />
     </Stack>
-    <ParameterPane />
+    <ConfigurationPane />
   </Stack>
 
 

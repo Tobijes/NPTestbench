@@ -15,13 +15,7 @@ public class ConfigurationController : ControllerBase
         _configurationService = configurationService;
     }
 
-    [HttpGet()]
-    public  Task<Configuration> GetActiveConfiguration()
-    {
-        var configuration =  _configurationService.GetActiveConfiguration();
-        return configuration;
-    }
-
+    
     [HttpGet("{id}")]
     public  Task<Configuration> GetConfiguration(int id)
     {
@@ -29,23 +23,25 @@ public class ConfigurationController : ControllerBase
         return configuration;
     }
 
-    [HttpPost("SetActiveConfiguration/{id}")]
-    public async Task SetActiveConfiguration(int id)
-    {
-       await _configurationService.SetActiveConfig(id);
-    }
-
-    [HttpGet("List")]
+    [HttpGet()]
     public  Task<List<Configuration>> ListConfigurations()
     {
         var configurations =  _configurationService.List();
         return configurations;
     }
 
-    [HttpGet("GetConfigById/{id}")]
-    public Task<Configuration> GetConfigurationByID(int id)
+    [HttpGet("active")]
+    public async Task<Configuration> GetActiveConfiguration()
     {
-        return _configurationService.GetConfigurationByID(id);
+        var configuration = await _configurationService.GetActiveConfiguration();
+        return configuration;
+    }
+    
+    [HttpPost("active/{id}")]
+    public async Task<Configuration> SetActiveConfiguration(int id)
+    {
+       var configuration = await _configurationService.SetActiveConfig(id);
+       return configuration;
     }
 
     public class CreateConfigurationRequest
@@ -59,15 +55,10 @@ public class ConfigurationController : ControllerBase
         return _configurationService.Create(input.Name);
     }
 
-    public class CloneConfigurationRequest
+    [HttpPost("{configurationId}/Clone")]
+    public Task<Configuration> CloneConfiguration(int configurationId)
     {
-        public required int Id { get; set; }
-    }
-
-    [HttpPost("Clone")]
-    public Task<Configuration> CloneConfiguration(CloneConfigurationRequest input)
-    {
-        return _configurationService.Clone(input.Id);
+        return _configurationService.Clone(configurationId);
     }
 
     public class AddParameterRequest
@@ -76,29 +67,28 @@ public class ConfigurationController : ControllerBase
         public required string Value { get; set; }
     }
 
-    public class UpdateParameterRequest
+    [HttpPut("{configurationId}/Parameter")]
+    public async Task<Parameter> AddParameter(int configurationId, AddParameterRequest input)
     {
-        public required int Id {get; set;}
+        var parameter = await _configurationService.AddParameter(configurationId, input.Name, input.Value);
+        return parameter;
+    }
+
+     public class UpdateParameterRequest
+    {
         public required string Name { get; set; }
         public required string Value { get; set; }
     }
 
-  
-
-    [HttpPost("{configurationId}/AddParameter")]
-    public Task<int> AddParameter(int configurationId, AddParameterRequest input)
+    [HttpPost("{configurationId}/Parameter/{parameterId}")]
+    public async Task<Parameter> UpdateParameter(int configurationId, int parameterId, UpdateParameterRequest input)
     {
-        return  _configurationService.AddParameter(configurationId, input.Name, input.Value);
+        var parameter = await _configurationService.UpdateParameter(configurationId, parameterId, input.Name, input.Value);
+       return parameter;
     }
 
-    [HttpPost("{configurationId}/UpdateParameter")]
-    public Task UpdateParameter(int configurationId, UpdateParameterRequest input)
-    {
-       return _configurationService.UpdateParameter(configurationId, input.Id, input.Name, input.Value);
-    }
-
-    [HttpPost("{parameterId}/DeleteParameter")]
-    public async Task DeleteParameter(int parameterId)
+    [HttpDelete("{configurationId}/Parameter/{parameterId}")]
+    public async Task DeleteParameter(int configurationId, int parameterId)
     {
          await _configurationService.DeleteParameter(parameterId);
     }

@@ -1,39 +1,17 @@
 import { useState, useEffect, createContext, useContext } from 'react';
 import PropTypes from 'prop-types';
-
-
+import { apiDelete, apiGet, apiPost, apiPut } from '../libs/api';
 
 const ConfigurationProvider = (props) => {
     const [activeConfiguration, setActiveConfiguration] = useState(null);
-
     const [configs, setConfigurations] = useState([])
-
     const [currentConfiguration, setCurrentConfiguration] = useState(null)
-
-
-
 
     useEffect(() => {
         // This function will update the server with the new active configuration
         const updateServerActiveConfig = async () => {
             if (activeConfiguration) { // Ensure there is an active configuration to update
-                try {
-
-                    const response = await fetch('http://localhost:5000/api/Configuration/SetActiveConfiguration/' + activeConfiguration.id, {
-                        method: 'POST', // Use 'POST' or 'PUT', depending on your API requirements
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        //body: JSON.stringify(state.id), // Send the active configuration as the request body
-                    });
-                    console.log("active config has been set")
-                    if (!response.ok) {
-                        throw new Error('Failed to update the active configuration on the server');
-                    }
-
-                } catch (error) {
-                    console.error('Error updating the active configuration:', error);
-                }
+                await apiPost(`/api/Configuration/active/${activeConfiguration.id}`)
             }
         };
 
@@ -41,7 +19,6 @@ const ConfigurationProvider = (props) => {
             updateServerActiveConfig();
         }
     }, [activeConfiguration]); // Run this effect when `state` changes
-
 
 
     const updateParameter = async (parameter) => {
@@ -60,65 +37,33 @@ const ConfigurationProvider = (props) => {
             };
         });
 
-
         console.log("this is paramter to update: " + JSON.stringify(parameter))
-        try {
-            const response = await fetch('http://localhost:5000/api/Configuration/' + currentConfiguration.id + '/UpdateParameter/', {
-                method: 'POST', // Use 'POST' or 'PUT', depending on your API requirements
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    Id: parameter.id,
-                    Name: parameter.name,
-                    Value: parameter.value
-                }), // Send the active configuration as the request body
-            });
-            if (!response.ok) {
-                throw new Error('Failed to update the active configuration on the server');
-            }
-
-        } catch (error) {
-            console.error('Error updating the active configuration:', error);
-        }
+        await apiPost(`/api/configuration/${currentConfiguration.id}/parameter/${parameter.id}`, {
+            Name: parameter.name,
+            Value: parameter.value
+        })
 
     };
 
     const addParameter = async () => {
         console.log("paramter being added")
-        try {
-            const response = await fetch('http://localhost:5000/api/Configuration/' + currentConfiguration.id + '/AddParameter/', {
-                method: 'POST', // Use 'POST' or 'PUT', depending on your API requirements
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    Name: "",
-                    Value: "",
-                }),
-            });
+        const parameter = await apiPut('/api/Configuration/' + currentConfiguration.id + '/parameter',{
+            Name: "",
+            Value: "",
+        });
 
-            if (!response.ok) {
-                throw new Error('Failed to update the active configuration on the server');
-            }
-            var addedParameterId = await response.json()
-            setCurrentConfiguration((prevState) => {
-                console.log("prior state.:" + JSON.stringify(prevState))
-                return {
-                    ...prevState,
-                    parameters: [
-                        ...prevState.parameters,
-                        { id: addedParameterId, name: "", value: "" }
-                    ],
-                };
-            });
-
-        } catch (error) {
-            console.error('Error updating the active configuration:', error);
-        }
+        setCurrentConfiguration((prevState) => {
+            console.log("prior state.:" + JSON.stringify(prevState))
+            return {
+                ...prevState,
+                parameters: [
+                    ...prevState.parameters,
+                    parameter
+                ],
+            };
+        });
 
     };
-
 
     const deleteParameter = async (parameterId) => {
         var newParameters = currentConfiguration.parameters.filter((param) => param.id !== parameterId);
@@ -127,34 +72,18 @@ const ConfigurationProvider = (props) => {
             parameters: newParameters,
         }));
         console.log("this is parm" + parameterId)
-        try {
-            const response = await fetch('http://localhost:5000/api/Configuration/' + parameterId + '/DeleteParameter/', {
-                method: 'POST', // Use 'POST' or 'PUT', depending on your API requirements
-                headers: {
-                    'Content-Type': 'application/json',
-                }, // Send the active configuration as the request body
-            });
-            console.log("parameter has been beenDeleted " + parameterId)
-            if (!response.ok) {
-                throw new Error('Failed to delete parameter');
-            }
 
-        } catch (error) {
-            console.error('Failed to delete parameter:', error);
-        }
+        await apiDelete('/api/configuration/' + currentConfiguration.id + '/parameter/' + parameterId)
+        console.log("parameter has been beenDeleted " + parameterId)
 
     };
 
     useEffect(() => {
         const fetchActiveConfig = async () => {
-            try {
-                const response = await fetch('http://localhost:5000/api/Configuration');
-                const data = await response.json();
-                setActiveConfiguration(data);
-                setCurrentConfiguration(data)
-            } catch (error) {
-                console.error('Error fetching data: ', error);
-            }
+            const activeConfiguration = await apiGet('/api/configuration/active')
+
+            setActiveConfiguration(activeConfiguration);
+            setCurrentConfiguration(activeConfiguration)
         };
 
         fetchActiveConfig();
@@ -164,79 +93,38 @@ const ConfigurationProvider = (props) => {
 
     useEffect(() => {
         const fetchConfigs = async () => {
-            try {
-                const response = await fetch('http://localhost:5000/api/Configuration/list');
-                const data = await response.json();
-                setConfigurations(data);
-            } catch (error) {
-                console.error('Error fetching data: ', error);
-            }
+            const configurations = await apiGet('/api/configuration')
+            setConfigurations(configurations);
         };
 
         fetchConfigs();
     }, []);
 
     const getConfigById = async (configId) => {
-        try {
-            const response = await fetch('http://localhost:5000/api/Configuration/GetConfigById/' + configId, {
-                method: 'GET', // Use 'POST' or 'PUT', depending on your API requirements
-                headers: {
-                    'Content-Type': 'application/json',
-                }, // Send the active configuration as the request body
-            });
-            if (!response.ok) {
-                throw new Error('Failed to fetch config by id');
-            }
-            const data = await response.json()
-            setCurrentConfiguration(data);
-
-
-        } catch (error) {
-            console.error('Failed to fetch config by id:', error);
-        }
-
+        const configuration = await apiGet('/api/configuration/' + configId)
+        setCurrentConfiguration(configuration);
     };
 
 
-    const createConfiguration = async (configName) => {
-        try {
-            const response = await fetch('http://localhost:5000/api/Configuration/CreateConfiguration/', {
-                method: 'POST', // Use 'POST' or 'PUT', depending on your API requirements
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    Name: configName
-                })
-
-            });
-            if (!response.ok) {
-                throw new Error('Failed to create config');
-            }
-            const data = await response.json()
-            setCurrentConfiguration(data);
-            setConfigurations([...configs, data])
-
-
-        } catch (error) {
-            console.error('Failed to create config:', error);
-        }
-
+    const cloneConfiguration = async () => {
+        const configuration = await apiPost("/api/configuration/" + currentConfiguration.id + "/clone", {})
+        setCurrentConfiguration(configuration);
+        setConfigurations([...configs, configuration])
     };
+
     return (
         <ConfigurationContext.Provider value={
             {
                 activeConfiguration,
                 setActiveConfiguration,
                 configs,
-                setConfigurations,
                 updateParameter,
                 addParameter,
                 deleteParameter,
                 currentConfiguration,
                 setCurrentConfiguration,
                 getConfigById,
-                createConfiguration
+                cloneConfiguration
             }
         }>
             {props.children}
