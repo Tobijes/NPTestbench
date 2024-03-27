@@ -5,7 +5,7 @@ public class DataService : BackgroundService, IDisposable
 
     private readonly ConfigurationService _configurationService;
     private readonly DataNotifier _dataNotifier;
-    private readonly CommunicationService _communcationService;
+    private readonly CommunicationService _communicationService;
 
     private const int SAMPLE_DELAY_LOW = 1000 / 1;
     private const int SAMPLE_DELAY_HIGH = 1000 / 3;
@@ -18,68 +18,81 @@ public class DataService : BackgroundService, IDisposable
     {
         _configurationService = configurationService;
         _dataNotifier = dataNotifier;
-        _communcationService = communicationService;
+        _communicationService = communicationService;
         _dataState = new DataNotifier.DataState();
 
-        _configurationService.ActiveConfigurationChanged += async () => {
-            devices = (await _configurationService.GetActiveConfiguration()).Devices.ToArray(); 
+        _configurationService.ActiveConfigurationChanged += async () =>
+        {
+            devices = (await _configurationService.GetActiveConfiguration()).Devices.ToArray();
         };
     }
 
+    public async Task WriteDevice(Device device, ushort value) {
+        await _communicationService.WriteDevice(device, value);
+        await ReadAll();
+    }
+
+    public async Task ReadAll()
+    {
+        float[] values = await _communicationService.ReadDevices(devices);
+
+        // Only save to log if we are running
+        if (_runId != null)
+        {
+            DateTime timestamp = DateTime.Now;
+            using (var context = new DataContext())
+            {
+                for (int i = 0; i < devices.Length; i++)
+                {
+                    var measurement = new Measurement()
+                    {
+                        DeviceId = devices[i].Id,
+                        RunId = (int)_runId,
+                        Timestamp = timestamp,
+                        Value = values[i]
+                    };
+                    context.Measurements.Add(measurement);
+                }
+                context.SaveChanges();
+            }
+        }
+
+        for (int i = 0; i < devices.Length; i++)
+        {
+            int id = devices[i].Id;
+            if (!_dataState.DeviceStates.ContainsKey(id))
+            {
+                _dataState.DeviceStates.Add(id, new DataNotifier.DeviceState()
+                {
+                    Id = id,
+                    Name = devices[i].Name,
+                    DrawingId = devices[i].DrawingID,
+                });
+            }
+
+            _dataState.DeviceStates[id].Value = values[i];
+            _dataState.DeviceStates[id].ValueRunMaximum = Math.Max(_dataState.DeviceStates[id].ValueRunMaximum, values[i]);
+            _dataState.DeviceStates[id].ValueRunMinimum = Math.Min(_dataState.DeviceStates[id].ValueRunMinimum, values[i]);
+        }
+
+        // TODO: Should not be published on every read
+        await PublishDataState();
+    }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        devices = (await _configurationService.GetActiveConfiguration()).Devices.ToArray(); 
+        devices = (await _configurationService.GetActiveConfiguration()).Devices.ToArray();
         while (!stoppingToken.IsCancellationRequested)
         {
-            float[] values = await _communcationService.ReadDevices(devices);
-
-            // Only save to log if we are running
-            if (_runId != null)
-            {
-                DateTime timestamp = DateTime.Now;
-                using (var context = new DataContext())
-                {
-                    for (int i = 0; i < devices.Length; i++)
-                    {
-                        var measurement = new Measurement()
-                        {
-                            DeviceId = devices[i].Id,
-                            RunId = (int)_runId,
-                            Timestamp = timestamp,
-                            Value = values[i]
-                        };
-                        context.Measurements.Add(measurement);
-                    }
-                    context.SaveChanges();
-                }
-            }
-
-            for (int i = 0; i < devices.Length; i++)
-            {
-                int id = devices[i].Id;
-                if (!_dataState.DeviceStates.ContainsKey(id)) {
-                    _dataState.DeviceStates.Add(id, new DataNotifier.DeviceState(){
-                        Id = id,
-                        Name = devices[i].Name,    
-                        DrawingId = devices[i].DrawingID,    
-                    });
-                }
-
-                _dataState.DeviceStates[id].Value = values[i];
-                _dataState.DeviceStates[id].ValueRunMaximum = Math.Max(_dataState.DeviceStates[id].ValueRunMaximum, values[i]);
-                _dataState.DeviceStates[id].ValueRunMinimum = Math.Min(_dataState.DeviceStates[id].ValueRunMinimum, values[i]);
-            }
-            // TODO: Should not be published on every read
-            await PublishDataState();
-
+            await ReadAll();
             await Task.Delay(_runId != null ? SAMPLE_DELAY_HIGH : SAMPLE_DELAY_LOW);
         }
     }
 
     public async Task<Run> StartRun()
     {
-        if (_runId != null) {
+        if (_runId != null)
+        {
             throw new Exception("Already running");
         }
         var configuration = await _configurationService.GetActiveConfiguration();
@@ -113,7 +126,8 @@ public class DataService : BackgroundService, IDisposable
         return run;
     }
 
-    private async Task PublishDataState() {
+    private async Task PublishDataState()
+    {
         _dataState.RunId = _runId;
         await _dataNotifier.PublishDataState(_dataState);
         // Console.WriteLine($"{DateTime.Now}: Published data state");

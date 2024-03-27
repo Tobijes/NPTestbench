@@ -8,14 +8,14 @@ public class CommandController : ControllerBase
 {
 
     private ConfigurationService _configurationService;
-    private CommunicationService _communicationService;
+    private DataService _dataService;
 
     private const ushort OPEN = ushort.MaxValue; 
     private const ushort CLOSED = ushort.MinValue;
 
-    public CommandController(ConfigurationService configurationService, CommunicationService communicationService) {
+    public CommandController(ConfigurationService configurationService, DataService dataService) {
         _configurationService = configurationService;
-        _communicationService = communicationService;
+        _dataService = dataService;
     }
 
     [HttpPost("Open/{deviceId}")]
@@ -26,7 +26,7 @@ public class CommandController : ControllerBase
         if (device == null) {
             return NotFound("Device not found by ID");
         }
-        await _communicationService.WriteDevice(device, OPEN);
+        await _dataService.WriteDevice(device, OPEN);
         return Ok();
     }
 
@@ -38,7 +38,7 @@ public class CommandController : ControllerBase
         if (device == null) {
             return NotFound("Device not found by ID");
         }
-        await _communicationService.WriteDevice(device, CLOSED);
+        await _dataService.WriteDevice(device, CLOSED);
         return Ok();
     }
 
@@ -54,9 +54,9 @@ public class CommandController : ControllerBase
         var isOpen = true;
         var first = isOpen ? CLOSED : OPEN;
         var second = isOpen ? OPEN : CLOSED;
-        await _communicationService.WriteDevice(device, first);
+        await _dataService.WriteDevice(device, first);
         await Task.Delay(100);
-        await _communicationService.WriteDevice(device, second);
+        await _dataService.WriteDevice(device, second);
         return Ok();
     }
 
