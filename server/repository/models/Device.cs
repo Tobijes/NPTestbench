@@ -5,20 +5,22 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace NPTestbench.Models;
 
 public enum DeviceDataType {
-    Int16 = 0,
-    UInt16 = 1,
-    Int32 = 2,
-    UInt32 = 3,
-    Int64 = 4,
-    UInt64 = 5,
-    Float32 = 6,
+    Bit = 0,
+    Int16 = 1,
+    UInt16 = 2,
+    Int32 = 3,
+    UInt32 = 4,
+    Int64 = 5,
+    UInt64 = 6,
+    Float32 = 7,
 }
 
 public class Device
 {
     public int Id { get; set; }
     public string Name { get; set; }
-    public ushort StartAddress { get; set;}
+    public ushort ReadAddress { get; set;}
+    public ushort? WriteAddress { get; set;}
     public DeviceDataType DataType { get; set;}
     public string? DrawingID { get; set; } // Assuming this is a string identifier
 

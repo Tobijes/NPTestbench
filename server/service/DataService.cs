@@ -29,6 +29,7 @@ public class DataService : BackgroundService, IDisposable
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
+        devices = (await _configurationService.GetActiveConfiguration()).Devices.ToArray(); 
         while (!stoppingToken.IsCancellationRequested)
         {
             float[] values = await _communcationService.ReadDevices(devices);

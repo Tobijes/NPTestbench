@@ -1,30 +1,41 @@
-import { Button, Stack, Typography } from "@mui/material";
+import { Button, Chip, Stack, Typography } from "@mui/material";
 import PropTypes from 'prop-types';
 import { useState } from "react";
 import { useCommandContext } from "../providers/CommandProvider";
+import { useDataStreamContext } from "../providers/DataStreamProvider";
 
 const ValveLine = ({ device }) => {
-    const [open, setOpen] = useState(true);
+    
+    const dataStreamContext = useDataStreamContext();
     const commandContext = useCommandContext();
-
+    
     const onOpenClick = () => {
         commandContext.callOpen(device.id);
-        setOpen(true);
     }
     const onCloseClick = () => {
         commandContext.callClose(device.id);
-        setOpen(false);
-
     }
     const onPulseClick = () => {
         commandContext.callPulse(device.id);
     }
+    
 
-    return <Stack direction="row" spacing={8} justifyContent="space-between" alignItems="center">
-        <Typography>{device.name}</Typography>
+    let open = undefined;
+    if (dataStreamContext.deviceStates != null && device.id in dataStreamContext.deviceStates) {
+        const value = dataStreamContext.deviceStates[device.id].value;
+        open = value > 0;
+    }
+
+
+    return <Stack direction="row" spacing={4} justifyContent="space-between" alignItems="center">
+        <Stack direction="row" spacing={2} alignItems="center">
+            <Typography>{device.name}</Typography>
+            <Chip label={open ? "Open" : "Closed"} color={open ? "success" : "error"} variant="outlined"/>
+
+        </Stack>
         <Stack direction="row" spacing={4}>
-            <Button variant='contained' disabled={open} onClick={onOpenClick}>Open</Button>
-            <Button variant='contained' disabled={!open} onClick={onCloseClick}>Close</Button>
+            <Button variant='contained' disabled={open || open == undefined } onClick={onOpenClick}>Open</Button>
+            <Button variant='contained' disabled={!open || open == undefined} onClick={onCloseClick}>Close</Button>
             <Button variant='contained' onClick={onPulseClick}>Pulse</Button>
         </Stack>
     </Stack>

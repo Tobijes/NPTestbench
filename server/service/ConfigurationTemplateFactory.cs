@@ -12,36 +12,44 @@ public enum ConfigurationTemplateType
 }
 
 // Intermediate objects to ease manual writing
-public record DeviceTemplate(string Name, ushort StartAddress, DeviceDataType DataType, string DrawingId);
+public record DeviceTemplate(string Name, ushort ReadAddress, ushort? WriteAddress, DeviceDataType DataType, string? DrawingId);
 public record ParameterTemplate(string Name, string Value);
 
 public class ConfigurationTemplateFactory
 {
 
     public static Dictionary<ConfigurationTemplateType, string> DefaultNames = new Dictionary<ConfigurationTemplateType, string>{
-            {ConfigurationTemplateType.BLANK, "Default: Blank"},
+            // {ConfigurationTemplateType.BLANK, "Default: Blank"},
             {ConfigurationTemplateType.STAGE_1_2_VACUUM_CHAMBER, "Default: Stage 1 and 2, vacuum chamber"},
             {ConfigurationTemplateType.STAGE_1_2_ORIFICE_PLATE, "Default: Stage 1 and 2, orifice plate"},
             {ConfigurationTemplateType.STAGE_2_ORIFICE_PLATE, "Default: Stage 2, orifice plate"},
         };
     static DeviceTemplate[] DefaultDevices = [
-            new("TF-VC-1", 0, DeviceDataType.Float32, "TF-VC-1"),
-            new("PT-VC-1", 2, DeviceDataType.Float32, "PT-VC-1"),
+            // Read-only devices
+            new("TF-VC-1", 0, null, DeviceDataType.Float32, "TF-VC-1"),
+            new("PT-VC-1", 2, null, DeviceDataType.Float32, "PT-VC-1"),
 
-            new("TF-TA-1", 4, DeviceDataType.Float32, "TF-TA-1"),
-            new("PT-TA-1", 6, DeviceDataType.Float32, "PT-TA-1"),
+            new("TF-TA-1", 4, null, DeviceDataType.Float32, "TF-TA-1"),
+            new("PT-TA-1", 6, null, DeviceDataType.Float32, "PT-TA-1"),
 
-            new("TF-S1-1", 8, DeviceDataType.Float32, "TF-S1-1"),
-            new("PT-S1-1", 10, DeviceDataType.Float32, "PT-S1-1"),
+            new("TF-S1-1", 8, null, DeviceDataType.Float32, "TF-S1-1"),
+            new("PT-S1-1", 10, null, DeviceDataType.Float32, "PT-S1-1"),
 
-            new("TF-S1-2", 12, DeviceDataType.Float32, "TF-S1-2"),
-            new("PT-S1-2", 14, DeviceDataType.Float32, "PT-S1-2"),
+            new("TF-S1-2", 12, null, DeviceDataType.Float32, "TF-S1-2"),
+            new("PT-S1-2", 14, null, DeviceDataType.Float32, "PT-S1-2"),
 
-            new("TF-S2-1", 16, DeviceDataType.Float32, "TF-S2-1"),
-            new("PT-S2-1", 18, DeviceDataType.Float32, "PT-S2-1"),
+            new("TF-S2-1", 16, null, DeviceDataType.Float32, "TF-S2-1"),
+            new("PT-S2-1", 18, null, DeviceDataType.Float32, "PT-S2-1"),
 
-            new("TF-S2-2", 20, DeviceDataType.Float32, "TF-S2-2"),
-            new("PT-S2-2", 22, DeviceDataType.Float32, "PT-S2-2"),
+            new("TF-S2-2", 20, null, DeviceDataType.Float32, "TF-S2-2"),
+            new("PT-S2-2", 22, null, DeviceDataType.Float32, "PT-S2-2"),
+
+            new("TF-S2-2", 20, null, DeviceDataType.Float32, "TF-S2-2"),
+            new("PT-S2-2", 22, null, DeviceDataType.Float32, "PT-S2-2"),
+
+            // Read-write devices
+            new("VS-S1-1", 0, 0, DeviceDataType.Bit, null),
+            new("VS-S2-1", 1, 1, DeviceDataType.Bit, null),
         ];
     static Dictionary<ConfigurationTemplateType, DeviceTemplate[]> DeviceTemplates = new Dictionary<ConfigurationTemplateType, DeviceTemplate[]>{
         {ConfigurationTemplateType.BLANK, DefaultDevices},
@@ -111,7 +119,8 @@ public class ConfigurationTemplateFactory
         return DeviceTemplates[type].Select(template => new Device()
         {
             Name = template.Name,
-            StartAddress = template.StartAddress,
+            ReadAddress = template.ReadAddress,
+            WriteAddress = template.WriteAddress,
             DataType = template.DataType,
             DrawingID = template.DrawingId,
             ConfigurationId = configurationId

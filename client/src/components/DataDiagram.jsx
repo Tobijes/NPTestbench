@@ -8,6 +8,9 @@ const DataDiagramController = () => {
     
     const valueState = {}
     for (const [deviceId, deviceState] of Object.entries(dataStreamContext.deviceStates)) {
+        if (deviceState.drawingId == null) {
+            continue;
+        }
         valueState[deviceState.drawingId + "-VAL"] = deviceState.value;
         valueState[deviceState.drawingId + "-MIN"] = deviceState.valueRunMinimum;
         valueState[deviceState.drawingId + "-MAX"] = deviceState.valueRunMaximum;

@@ -145,7 +145,7 @@ public class ConfigurationService
             context.Devices.Add(new Device()
             {
                 Name = device.Name,
-                StartAddress = device.StartAddress,
+                ReadAddress = device.ReadAddress,
                 DataType = device.DataType,
                 DrawingID = device.DrawingID,
                 ConfigurationId = newConfiguration.Id
@@ -199,7 +199,7 @@ public class ConfigurationService
         var device = new Device()
         {
             Name = name,
-            StartAddress = startAddress,
+            ReadAddress = startAddress,
             DataType = dataType,
             DrawingID = DrawingID
         };

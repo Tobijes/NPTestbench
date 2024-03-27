@@ -1,11 +1,10 @@
 // View1.js
 import { Box, Button, Container, Divider, Grid, Stack, Typography } from '@mui/material';
 import React from 'react';
-import ValveLine from '../components/ValveLine';
 import RunPanel from '../components/RunPanel';
 import RunProvider from '../providers/RunProvider';
-import CommandProvider from '../providers/CommandProvider';
 import DataDiagramController from '../components/DataDiagram';
+import ValvePanel from '../components/ValvePanel';
 
 const MainPage = () => {
   return <Box>
@@ -35,13 +34,7 @@ const MainPage = () => {
         <Typography variant='h4'>
           Commands
         </Typography>
-        <CommandProvider>
-          <Stack spacing={2} divider={<Divider orientation="horizontal" flexItem />}>
-            {/* TODO: Hardcoded ids.  */}
-            <ValveLine device={{ name: "Valve 1", id: 3}} /> 
-            <ValveLine device={{ name: "Valve 2", id: 4}} />
-          </Stack>
-        </CommandProvider>
+        <ValvePanel />
       </Stack>
     </Stack>
   </Box>;
