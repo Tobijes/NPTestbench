@@ -1,0 +1,14 @@
+version: '3.8'
+
+services:
+  # Maybe relevant? https://inloop.github.io/sqlite-viewer/
+  # https://quay.io/repository/jupyter/datascience-notebook?tab=tags
+  jupyter-analysis:
+    container_name: jupyter-lab
+    image: quay.io/jupyter/datascience-notebook:lab-4.1.5
+    ports: 
+      - 8888:8888
+    command: jupyter-lab --ServerApp.root_dir='/home/jovyan/work/' --LabApp.token=''
+    volumes:
+      - ./code:/home/jovyan/work/code
+      - ../data:/home/jovyan/work/data:ro

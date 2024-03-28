@@ -1,3 +1,4 @@
+using Microsoft.EntityFrameworkCore;
 using NPTestbench.Models;
 
 public class DataService : BackgroundService, IDisposable
@@ -105,8 +106,12 @@ public class DataService : BackgroundService, IDisposable
         context.Runs.Add(run);
         await context.SaveChangesAsync();
         _runId = run.Id;
+
+        await context.Database.ExecuteSqlRawAsync("PRAGMA wal_checkpoint;");
+        
         Console.WriteLine($"{DateTime.Now}: Started run");
         await PublishDataState();
+
         return run;
     }
 
@@ -121,7 +126,10 @@ public class DataService : BackgroundService, IDisposable
         var run = await context.Runs.FindAsync(oldRunId) ?? throw new Exception("Configuration ID did not exist");
         run.EndTime = DateTime.Now;
         await context.SaveChangesAsync();
+        
+        await context.Database.ExecuteSqlRawAsync("PRAGMA wal_checkpoint;");
         Console.WriteLine($"{DateTime.Now}: Stopped run");
+
         await PublishDataState();
         return run;
     }
