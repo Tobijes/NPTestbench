@@ -48,6 +48,10 @@ const TopBar = () => {
           >
             <EditIcon />
           </IconButton>
+          <Button sx={{left: 900}} 
+           variant="contained"
+          component={Link} to = "/summary"
+           >Show Summary</Button>
         </Toolbar>
       </AppBar>
     </Box>

@@ -10,6 +10,7 @@ import Diagram from './components/Diagram';
 import MainPage from './pages/MainPage';
 import ConfigurationPage from './pages/ConfigurationPage';
 import RootPage from './pages/Root';
+import SummaryPage from './pages/SummaryPage';
 
 export const router = createBrowserRouter(
   createRoutesFromElements(
@@ -17,6 +18,7 @@ export const router = createBrowserRouter(
       <Route path="/" element={<RootPage />}>
         <Route path="/" element={<MainPage />} />
         <Route path="/configuration" element={<ConfigurationPage />} />
+        <Route path="/summary" element={<SummaryPage />} />
       </Route>
     </>
   )

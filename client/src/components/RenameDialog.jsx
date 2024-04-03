@@ -10,64 +10,64 @@ import EditIcon from '@mui/icons-material/Edit';
 import { useConfigurationContext } from '../providers/ConfigurationProvider';
 
 const RenameDialog = () => {
-    const { currentConfiguration, renameConfiguration } = useConfigurationContext();
-    const [open, setOpen] = React.useState(false);
-    const [name, setName] = React.useState("Error: notset");
+  const { currentConfiguration, renameConfiguration } = useConfigurationContext();
+  const [open, setOpen] = React.useState(false);
+  const [name, setName] = React.useState("Error: notset");
 
-    const handleClickOpen = () => {
-        setName(currentConfiguration.name)
-        setOpen(true);
-    };
-  
-    const handleClose = () => {
-        setOpen(false);
-    };
+  const handleClickOpen = () => {
+    setName(currentConfiguration.name)
+    setOpen(true);
+  };
 
-    const handleSave = async () => {
-        await renameConfiguration(name)
-        handleClose();
-    }
+  const handleClose = () => {
+    setOpen(false);
+  };
 
-    const handleTextChange = (e) => {
-        setName(e.target.value)
-    }
+  const handleSave = async () => {
+    await renameConfiguration(name)
+    handleClose();
+  }
 
-    const saveDisabled = currentConfiguration.name === name || name.length == 0;
-  
-    return (
-      <React.Fragment>
-        <Button variant="contained" startIcon={<EditIcon />} onClick={handleClickOpen}>Rename</Button>
-        <Dialog
-          open={open}
-          onClose={handleClose}
-          fullWidth={true}
-        >
-          <DialogTitle>Change Configuration Name</DialogTitle>
-          <DialogContent>
-            {/* <DialogContentText>
+  const handleTextChange = (e) => {
+    setName(e.target.value)
+  }
+
+  const saveDisabled = currentConfiguration.name === name || name.length == 0;
+
+  return (
+    <React.Fragment>
+      <Button variant="contained" startIcon={<EditIcon />} onClick={handleClickOpen}>Rename</Button>
+      <Dialog
+        open={open}
+        onClose={handleClose}
+        fullWidth={true}
+      >
+        <DialogTitle>Change Configuration Name</DialogTitle>
+        <DialogContent>
+          {/* <DialogContentText>
               To subscribe to this website, please enter your email address here. We
               will send updates occasionally.
             </DialogContentText> */}
-            <TextField
-              autoFocus
-              margin="dense"
-              id="name"
-              name="name"
-              label="Configuration name"
-              type="text"
-              fullWidth
-              variant="outlined"
-              value={name}
-              onChange={handleTextChange}
-            />
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={handleClose}>Cancel</Button>
-            <Button onClick={handleSave} disabled={saveDisabled}>Save</Button>
-          </DialogActions>
-        </Dialog>
-      </React.Fragment>
-    );
-  }
+          <TextField
+            autoFocus
+            margin="dense"
+            id="name"
+            name="name"
+            label="Configuration name"
+            type="text"
+            fullWidth
+            variant="outlined"
+            value={name}
+            onChange={handleTextChange}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleClose}>Cancel</Button>
+          <Button onClick={handleSave} disabled={saveDisabled}>Save</Button>
+        </DialogActions>
+      </Dialog>
+    </React.Fragment>
+  );
+}
 
 export default RenameDialog
