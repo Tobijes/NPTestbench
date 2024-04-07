@@ -13,6 +13,6 @@ public class Measurement
     public int RunId { get; set; }
     public Run Run { get; set; }
 
-    public int DeviceId { get; set; }
-    public Device Device { get; set; }
+    public int ChannelId { get; set; }
+    public Channel Channel { get; set; }
 }

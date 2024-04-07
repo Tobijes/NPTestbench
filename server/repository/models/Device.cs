@@ -19,13 +19,14 @@ public class Device
 {
     public int Id { get; set; }
     public string Name { get; set; }
-    public ushort ReadAddress { get; set;}
-    public ushort? WriteAddress { get; set;}
-    public DeviceDataType DataType { get; set;}
+    public string CalibrationFunctionName { get; set; } // Assuming this is a string identifier
     public string? DrawingID { get; set; } // Assuming this is a string identifier
 
     public int ConfigurationId { get; set; }
     public Configuration Configuration { get; set; }
 
     public ICollection<Measurement> Measurements { get; set; }
+
+    // Relations
+    public ICollection<DeviceChannel> DeviceChannels { get; set; }
 }

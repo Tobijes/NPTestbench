@@ -24,6 +24,10 @@ public class ConfigurationService
 
     private void BootstrapDatabase() {
         using var context = new DataContext();
+
+        var templateChannels = ConfigurationTemplateFactory.GenerateTemplateChannels();
+        context.Channels.AddRange(templateChannels);
+        context.SaveChanges();
         
         foreach (KeyValuePair<ConfigurationTemplateType, string> entry in ConfigurationTemplateFactory.DefaultNames) {
             var configuration = new Configuration()
@@ -40,6 +44,11 @@ public class ConfigurationService
 
             var templateDevices = ConfigurationTemplateFactory.GenerateTemplateDevices(entry.Key, configuration.Id);
             context.Devices.AddRange(templateDevices);
+
+            context.SaveChanges();            
+
+            var templateDeviceChannels = ConfigurationTemplateFactory.GenerateTemplateDeviceChannels(entry.Key, templateDevices, templateChannels);
+            context.DeviceChannels.AddRange(templateDeviceChannels);
 
             context.SaveChanges();
         }
@@ -75,6 +84,8 @@ public class ConfigurationService
         var configuration = await context.Configurations
             .Include(configuration => configuration.Parameters)
             .Include(configuration => configuration.Devices)
+            .ThenInclude(device => device.DeviceChannels)
+            .ThenInclude(deviceChannel => deviceChannel.Channel)
             .FirstAsync(c => c.Id == _activeConfiguration.Id) ?? throw new Exception("Configuration ID did not exist");
         return configuration;
     }
@@ -133,11 +144,23 @@ public class ConfigurationService
             context.Devices.Add(new Device()
             {
                 Name = device.Name,
-                ReadAddress = device.ReadAddress,
-                DataType = device.DataType,
                 DrawingID = device.DrawingID,
                 ConfigurationId = newConfiguration.Id
             });
+        }
+
+        // Clone device channels (without relation)
+        foreach (var device in oldConfiguration.Devices)
+        {   
+            foreach (var deviceChannel in device.DeviceChannels) {
+                context.DeviceChannels.Add(new DeviceChannel()
+                {
+                    DeviceId = deviceChannel.DeviceId,
+                    ChannelId = deviceChannel.ChannelId,
+                    IsRead = deviceChannel.IsRead,
+                    Order = deviceChannel.Order
+                });
+            }
         }
 
         await context.SaveChangesAsync();
@@ -181,20 +204,5 @@ public class ConfigurationService
 
         context.Parameters.Remove(parameter);
         await context.SaveChangesAsync();
-    }
-    public async Task<Configuration> AddDevice(int configurationId, string name, ushort startAddress, DeviceDataType dataType, string? DrawingID)
-    {
-        await using var context = new DataContext();
-        var configuration = await context.Configurations.FindAsync(configurationId) ?? throw new Exception("Configuration ID did not exist");
-        var device = new Device()
-        {
-            Name = name,
-            ReadAddress = startAddress,
-            DataType = dataType,
-            DrawingID = DrawingID
-        };
-        configuration.Devices.Add(device);
-        await context.SaveChangesAsync();
-        return configuration;
     }
 }

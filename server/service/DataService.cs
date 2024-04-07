@@ -29,51 +29,80 @@ public class DataService : BackgroundService, IDisposable
     }
 
     public async Task WriteDevice(Device device, ushort value) {
-        await _communicationService.WriteDevice(device, value);
+        var writeChannel = device.DeviceChannels
+            .Where(dc => !dc.IsRead)
+            .First()
+            .Channel;
+        await _communicationService.WriteChannel(writeChannel, value);
         await ReadAll();
     }
 
     public async Task ReadAll()
     {
-        float[] values = await _communicationService.ReadDevices(devices);
+        var values = await _communicationService.ReadDevices(devices);
 
-        // Only save to log if we are running
+        // Compute device values
+        foreach (var device in devices) 
+        {
+            if (!_dataState.DeviceStates.ContainsKey(device.Id))
+            {
+                _dataState.DeviceStates.Add(device.Id, new DataNotifier.DeviceState()
+                {
+                    Id = device.Id,
+                    Name = device.Name,
+                    DrawingId = device.DrawingID,
+                });
+            }
+
+            var channelValues = device.DeviceChannels
+                .Where(dc => dc.IsRead) // Select only read channels
+                .OrderBy(dc => dc.Order) // Sort by the order
+                .Select(dc => dc.Channel) // Jump to the channel
+                .Select(c => values[c.Id]) // Use channel id to get value from read results
+                .ToArray();
+
+            var value = CalibrationFunctions.Calibrate(device.CalibrationFunctionName, channelValues);
+            _dataState.DeviceStates[device.Id].Value = value;
+            _dataState.DeviceStates[device.Id].ValueRunMaximum = Math.Max(_dataState.DeviceStates[device.Id].ValueRunMaximum, value);
+            _dataState.DeviceStates[device.Id].ValueRunMinimum = Math.Min(_dataState.DeviceStates[device.Id].ValueRunMinimum, value);
+        }
+
+        // Save to log if we are running
         if (_runId != null)
         {
             DateTime timestamp = DateTime.Now;
             using (var context = new DataContext())
             {
-                for (int i = 0; i < devices.Length; i++)
-                {
+                foreach (KeyValuePair<int, float> kv in values) {
                     var measurement = new Measurement()
                     {
-                        DeviceId = devices[i].Id,
+                        ChannelId = kv.Key,
                         RunId = (int)_runId,
                         Timestamp = timestamp,
-                        Value = values[i]
+                        Value = kv.Value
                     };
                     context.Measurements.Add(measurement);
                 }
+
+                foreach (Device device in devices) {
+                    var channelValues = device.DeviceChannels
+                        .Where(dc => dc.IsRead) // Select only read channels
+                        .OrderBy(dc => dc.Order) // Sort by the order
+                        .Select(dc => dc.Channel) // Jump to the channel
+                        .Select(c => values[c.Id]) // Use channel id to get value from read results
+                        .ToArray();
+                    
+                    var calibratedValue = new CalibratedValue()
+                    {
+                        DeviceId = device.Id,
+                        RunId = (int)_runId,
+                        Timestamp = timestamp,
+                        Value = _dataState.DeviceStates[device.Id].Value
+                    };
+                    context.CalibratedValues.Add(calibratedValue);
+                }
                 context.SaveChanges();
             }
-        }
-
-        for (int i = 0; i < devices.Length; i++)
-        {
-            int id = devices[i].Id;
-            if (!_dataState.DeviceStates.ContainsKey(id))
-            {
-                _dataState.DeviceStates.Add(id, new DataNotifier.DeviceState()
-                {
-                    Id = id,
-                    Name = devices[i].Name,
-                    DrawingId = devices[i].DrawingID,
-                });
-            }
-
-            _dataState.DeviceStates[id].Value = values[i];
-            _dataState.DeviceStates[id].ValueRunMaximum = Math.Max(_dataState.DeviceStates[id].ValueRunMaximum, values[i]);
-            _dataState.DeviceStates[id].ValueRunMinimum = Math.Min(_dataState.DeviceStates[id].ValueRunMinimum, values[i]);
         }
 
         // TODO: Should not be published on every read

@@ -94,19 +94,4 @@ public class ConfigurationController : ControllerBase
          await _configurationService.DeleteParameter(parameterId);
     }
 
-    public class AddDeviceRequest
-    {
-        public required string Name { get; set; }
-        public required ushort StartAddress { get; set; }
-        public required DeviceDataType DataType { get; set; }
-        public string? DrawingID { get; set; }
-    }
-
-    [HttpPost("{configurationId}/Device")]
-    public Task<Configuration> AddDevice(int configurationId, AddDeviceRequest input)
-    {
-        var configuration = _configurationService.AddDevice(configurationId, input.Name, input.StartAddress, input.DataType, input.DrawingID);
-        return configuration;
-    }
-
 }

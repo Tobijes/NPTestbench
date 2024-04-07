@@ -12,7 +12,9 @@ public enum ConfigurationTemplateType
 }
 
 // Intermediate objects to ease manual writing
-public record DeviceTemplate(string Name, ushort ReadAddress, ushort? WriteAddress, DeviceDataType DataType, string? DrawingId);
+public record ChannelTemplate(string Name, ushort Address, DeviceDataType DataType);
+public record DeviceTemplate(string Name, string? DrawingId, string CalibrationFunctionName);
+public record DeviceChannelTemplate(string DeviceName, string ChannelName, bool IsRead, int Order);
 public record ParameterTemplate(string Name, string Value);
 
 public class ConfigurationTemplateFactory
@@ -24,38 +26,97 @@ public class ConfigurationTemplateFactory
             {ConfigurationTemplateType.STAGE_1_2_ORIFICE_PLATE, "Default: Stage 1 and 2, orifice plate"},
             {ConfigurationTemplateType.STAGE_2_ORIFICE_PLATE, "Default: Stage 2, orifice plate"},
         };
+
+    static ChannelTemplate[] DefaultChannels = [
+        new("AIN4", 8, DeviceDataType.Float32),
+        new("AIN5", 10, DeviceDataType.Float32),
+        new("AIN6", 12, DeviceDataType.Float32),
+        new("AIN7", 14, DeviceDataType.Float32),
+        new("AIN8", 16, DeviceDataType.Float32),
+        new("AIN9", 18, DeviceDataType.Float32),
+        new("AIN10", 20, DeviceDataType.Float32),
+        new("AIN11", 22, DeviceDataType.Float32),
+        new("AIN12", 24, DeviceDataType.Float32),
+        new("AIN13", 26, DeviceDataType.Float32),
+        new("CIO2", 2018, DeviceDataType.UInt16),
+        new("CIO3", 2019, DeviceDataType.UInt16),
+    ];
+
     static DeviceTemplate[] DefaultDevices = [
             // Read-only devices
-            new("TF-VC-1", 0, null, DeviceDataType.Float32, "TF-VC-1"),
-            new("PT-VC-1", 2, null, DeviceDataType.Float32, "PT-VC-1"),
+            new("TF-S1-1", "TF-S1-1", CalibrationFunctions.CALIBRATE_TEMPERATURE),
+            new("PT-S1-1", "PT-S1-1", CalibrationFunctions.CALIBRATE_PRESSURE_11),
 
-            new("TF-TA-1", 4, null, DeviceDataType.Float32, "TF-TA-1"),
-            new("PT-TA-1", 6, null, DeviceDataType.Float32, "PT-TA-1"),
+            new("TF-S1-2", "TF-S1-2", CalibrationFunctions.CALIBRATE_TEMPERATURE),
+            new("PT-S1-2", "PT-S1-2", CalibrationFunctions.CALIBRATE_PRESSURE_1),
 
-            new("TF-S1-1", 8, null, DeviceDataType.Float32, "TF-S1-1"),
-            new("PT-S1-1", 10, null, DeviceDataType.Float32, "PT-S1-1"),
+            new("TF-S2-1", "TF-S2-1", CalibrationFunctions.CALIBRATE_TEMPERATURE),
+            new("PT-S2-1", "PT-S2-1", CalibrationFunctions.CALIBRATE_PRESSURE_11),
 
-            new("TF-S1-2", 12, null, DeviceDataType.Float32, "TF-S1-2"),
-            new("PT-S1-2", 14, null, DeviceDataType.Float32, "PT-S1-2"),
+            new("TF-S2-2", "TF-S2-2", CalibrationFunctions.CALIBRATE_TEMPERATURE),
+            new("PT-S2-2", "PT-S2-2", CalibrationFunctions.CALIBRATE_PRESSURE_1),
 
-            new("TF-S2-1", 16, null, DeviceDataType.Float32, "TF-S2-1"),
-            new("PT-S2-1", 18, null, DeviceDataType.Float32, "PT-S2-1"),
+            new("TF-TA-1", "TF-TA-1", CalibrationFunctions.CALIBRATE_TEMPERATURE_GND),
+            new("PT-TA-1", "PT-TA-1", CalibrationFunctions.CALIBRATE_PRESSURE_21),
 
-            new("TF-S2-2", 20, null, DeviceDataType.Float32, "TF-S2-2"),
-            new("PT-S2-2", 22, null, DeviceDataType.Float32, "PT-S2-2"),
-
-            new("TF-S2-2", 20, null, DeviceDataType.Float32, "TF-S2-2"),
-            new("PT-S2-2", 22, null, DeviceDataType.Float32, "PT-S2-2"),
+            // new("TF-VC-1", "TF-VC-1", CalibrationFunctions.CALIBRATE_TEMPERATURE),
+            // new("PT-VC-1", "PT-VC-1", CalibrationFunctions.CALIBRATE_PRESSURE),
 
             // Read-write devices
-            new("VS-S1-1", 0, 0, DeviceDataType.Bit, null),
-            new("VS-S2-1", 1, 1, DeviceDataType.Bit, null),
+            new("VS-S1-1", null, CalibrationFunctions.CALIBRATE_SIMPLE),
+            new("VS-S2-1", null, CalibrationFunctions.CALIBRATE_SIMPLE),
         ];
+
+    static DeviceChannelTemplate[] DefaultDeviceChannels = [
+        new("TF-S1-1", "AIN7", true, 0),
+        new("TF-S1-1", "AIN8", true, 1),
+
+        new("PT-S1-1", "AIN13", true, 0),
+
+        new("TF-S1-2", "AIN6", true, 0),
+        new("TF-S1-2", "AIN7", true, 1),
+
+        new("PT-S1-2", "AIN12", true, 0),
+
+        new("VS-S1-1", "CIO2", true, 0),
+        new("VS-S1-1", "CIO2", false, 0),
+
+        new("TF-S2-1", "AIN5", true, 0),
+        new("TF-S2-1", "AIN6", true, 1),
+
+        new("PT-S2-1", "AIN11", true, 0),
+
+        new("TF-S2-2", "AIN4", true, 0),
+        new("TF-S2-2", "AIN5", true, 1),
+
+        new("PT-S2-2", "AIN10", true, 0),
+
+        new("VS-S2-1", "CIO3", true, 0),
+        new("VS-S2-1", "CIO3", false, 0),
+        
+        new("TF-TA-1", "AIN4", true, 0),
+
+        new("PT-TA-1", "AIN9", true, 0)
+    ];
     static Dictionary<ConfigurationTemplateType, DeviceTemplate[]> DeviceTemplates = new Dictionary<ConfigurationTemplateType, DeviceTemplate[]>{
         {ConfigurationTemplateType.BLANK, DefaultDevices},
         {ConfigurationTemplateType.STAGE_1_2_VACUUM_CHAMBER, DefaultDevices},
         {ConfigurationTemplateType.STAGE_1_2_ORIFICE_PLATE, DefaultDevices},
         {ConfigurationTemplateType.STAGE_2_ORIFICE_PLATE, DefaultDevices},
+    };
+
+    static Dictionary<ConfigurationTemplateType, ChannelTemplate[]> ChannelTemplates = new Dictionary<ConfigurationTemplateType, ChannelTemplate[]>{
+        {ConfigurationTemplateType.BLANK, DefaultChannels},
+        {ConfigurationTemplateType.STAGE_1_2_VACUUM_CHAMBER, DefaultChannels},
+        {ConfigurationTemplateType.STAGE_1_2_ORIFICE_PLATE, DefaultChannels},
+        {ConfigurationTemplateType.STAGE_2_ORIFICE_PLATE, DefaultChannels},
+    };
+
+    static Dictionary<ConfigurationTemplateType, DeviceChannelTemplate[]> DeviceChannelTemplates = new Dictionary<ConfigurationTemplateType, DeviceChannelTemplate[]>{
+        {ConfigurationTemplateType.BLANK, DefaultDeviceChannels},
+        {ConfigurationTemplateType.STAGE_1_2_VACUUM_CHAMBER, DefaultDeviceChannels},
+        {ConfigurationTemplateType.STAGE_1_2_ORIFICE_PLATE, DefaultDeviceChannels},
+        {ConfigurationTemplateType.STAGE_2_ORIFICE_PLATE, DefaultDeviceChannels},
     };
 
     static string[] DefaultParameterNames = [
@@ -119,11 +180,30 @@ public class ConfigurationTemplateFactory
         return DeviceTemplates[type].Select(template => new Device()
         {
             Name = template.Name,
-            ReadAddress = template.ReadAddress,
-            WriteAddress = template.WriteAddress,
-            DataType = template.DataType,
             DrawingID = template.DrawingId,
+            CalibrationFunctionName = template.CalibrationFunctionName,
             ConfigurationId = configurationId
+        }).ToArray();
+    }
+
+    public static Channel[] GenerateTemplateChannels()
+    {   
+        return DefaultChannels.Select(template => new Channel()
+        {
+            Name = template.Name,
+            Address = template.Address,
+            DataType = template.DataType
+        }).ToArray();
+    }
+
+    public static DeviceChannel[] GenerateTemplateDeviceChannels(ConfigurationTemplateType type, Device[] devices, Channel[] channels)
+    {
+        return DeviceChannelTemplates[type].Select(template => new DeviceChannel()
+        {
+            DeviceId = devices.Where(d => d.Name == template.DeviceName).First().Id,
+            ChannelId = channels.Where(d => d.Name == template.ChannelName).First().Id,
+            IsRead = template.IsRead,
+            Order = template.Order
         }).ToArray();
     }
 
