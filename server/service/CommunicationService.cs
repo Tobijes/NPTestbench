@@ -125,8 +125,8 @@ public class CommunicationService
         for (int i = 0; i < ushorts.Length; i++)
         {
             var bs = BitConverter.GetBytes(ushorts[i]);
-            bytes[i * 2] = bs[0];
-            bytes[i * 2 + 1] = bs[1];
+            bytes[i * 2] = bs[1];
+            bytes[i * 2 + 1] = bs[0];
         }
         if (BitConverter.IsLittleEndian)
         {
