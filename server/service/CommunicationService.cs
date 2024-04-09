@@ -1,5 +1,6 @@
 using System.Net.Sockets;
 using NModbus;
+using NModbus.Device;
 using NPTestbench.Models;
 
 /*
@@ -16,17 +17,29 @@ public class CommunicationService
 
     public CommunicationService()
     {
+        Connect();
+    }
+
+    private void Connect()
+    {
         try
         {
-            _client = new TcpClient("127.0.0.1", 5020);
+            var ip ="127.0.0.1";
+            var port = 5020;
+            _client = new TcpClient(ip, port);
             var factory = new ModbusFactory();
             _master = factory.CreateMaster(_client);
-
+            Console.WriteLine($"Connected to {ip}:{port}");
         }
         catch (Exception e)
         {
-            System.Console.WriteLine("TCP client failed to connect");
+            Console.WriteLine("TCP client failed to connect");
         }
+    }
+
+    public void Reconnect() {
+        Console.WriteLine("Reconnecting...");
+        Connect();
     }
 
     ushort NumberOfWords(DeviceDataType dataType) => dataType switch
@@ -56,7 +69,6 @@ public class CommunicationService
 
     public Task<float> ReadChannel(Channel channel)
     {
-
         if (channel.DataType == DeviceDataType.Bit)
         {
             if (channel.Writable)
@@ -79,7 +91,6 @@ public class CommunicationService
                 return ReadInputRegister(channel);
             }
         }
-
     }
 
     public async Task<Dictionary<int, float>> ReadDevices(Device[] devices)
@@ -91,8 +102,10 @@ public class CommunicationService
                 .Where(dc => dc.IsRead)
                 .Select(dc => dc.Channel);
 
-            foreach (var channel in channels) {
-                if (tasks.ContainsKey(channel.Id)) {
+            foreach (var channel in channels)
+            {
+                if (tasks.ContainsKey(channel.Id))
+                {
                     continue;
                 }
                 tasks.Add(channel.Id, ReadChannel(channel));
@@ -101,13 +114,14 @@ public class CommunicationService
 
         // Wait concurrently
         await Task.WhenAll(tasks.Values);
-       
+
         var results = new Dictionary<int, float>();
         Random rnd = new Random();
-        
-        foreach (KeyValuePair<int, Task<float>> kv in tasks) {
+
+        foreach (KeyValuePair<int, Task<float>> kv in tasks)
+        {
             float result = await kv.Value;
-            result *= rnd.Next(1,15); // Add noise
+            result *= rnd.Next(1, 15); // Add noise
             results.Add(kv.Key, result);
         }
 

@@ -1,3 +1,4 @@
+using System.Net.Sockets;
 using Microsoft.EntityFrameworkCore;
 using NPTestbench.Models;
 
@@ -38,8 +39,19 @@ public class DataService : BackgroundService, IDisposable
     }
 
     public async Task ReadAll()
-    {
-        var values = await _communicationService.ReadDevices(devices);
+    {   
+        Dictionary<int,float> values;
+        try {
+            values = await _communicationService.ReadDevices(devices);
+        } catch(InvalidOperationException) {
+            Console.WriteLine("Network error: Could not reach device");
+            _communicationService.Reconnect();
+            return;
+        } catch(SocketException) {
+            Console.WriteLine("Network error: Socket closed");
+            _communicationService.Reconnect();
+            return;
+        }
 
         // Compute device values
         foreach (var device in devices) 

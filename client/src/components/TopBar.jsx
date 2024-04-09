@@ -1,29 +1,19 @@
-import { Box, AppBar, Toolbar, IconButton, Typography, Button, TextField, InputLabel, Select, CircularProgress, Autocomplete } from '@mui/material';
-import MenuIcon from '@mui/icons-material/Menu';
+import { Box, AppBar, Toolbar, IconButton } from '@mui/material';
 import React from 'react';
 import ConfigurationDropDown from './ConfigurationDropDown';
-import { Link, NavLink } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import EditIcon from '@mui/icons-material/Edit';
 
 import NorthPropulsionLogo from '../assets/north_propulsion.png'
+import { useDataStreamContext } from '../providers/DataStreamProvider';
 
 const TopBar = () => {
-
+  const dataStreamContext = useDataStreamContext();
 
   return (
     <Box >
-      <AppBar position="static">
+      <AppBar position="static" color={dataStreamContext.connected ? "primary" : "error"}>
         <Toolbar>
-          {/* <IconButton
-            size="large"
-            edge="start"
-            color="inherit"
-            aria-label="menu"
-            sx={{ mr: 2 }}
-          >
-            <MenuIcon />
-          </IconButton> */}
-
           <Link to="/">
             <Box
               component="img"
