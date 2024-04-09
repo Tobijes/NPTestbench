@@ -13,7 +13,7 @@ const ValvePanel = () => {
     
     let valveLines = [];
     if (activeConfiguration != null) {
-        const writables = activeConfiguration.devices.filter(d => d.writeAddress != null);
+        const writables = activeConfiguration.devices.filter(d => d.deviceChannels.filter(dc => !dc.isRead).length > 0);
         valveLines = writables.map(device => <ValveLine key={device.id} device={device} />)
     }
 
