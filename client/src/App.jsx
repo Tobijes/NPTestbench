@@ -6,7 +6,6 @@ import { Box, ScopedCssBaseline } from '@mui/material';
 import { createBrowserRouter, createRoutesFromElements, Outlet, Route, RouterProvider, Routes } from 'react-router-dom';
 import CssBaseline from '@mui/material/CssBaseline';
 import ConfigurationProvider from './providers/ConfigurationProvider';
-import Diagram from './components/Diagram';
 import MainPage from './pages/MainPage';
 import ConfigurationPage from './pages/ConfigurationPage';
 import RootPage from './pages/Root';
