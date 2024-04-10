@@ -9,12 +9,14 @@ import ConfigurationProvider from './providers/ConfigurationProvider';
 import MainPage from './pages/MainPage';
 import ConfigurationPage from './pages/ConfigurationPage';
 import RootPage from './pages/Root';
+import SummaryPage from './pages/SummaryPage';
 
 export const router = createBrowserRouter(
   createRoutesFromElements(
     <>
       <Route path="/" element={<RootPage />}>
         <Route path="/" element={<MainPage />} />
+        <Route path="/summary" element={<SummaryPage />} />
         <Route path="/configuration" element={<ConfigurationPage />} />
       </Route>
     </>
