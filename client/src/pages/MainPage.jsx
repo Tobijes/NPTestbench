@@ -8,17 +8,20 @@ import ValvePanel from '../components/ValvePanel';
 
 const MainPage = () => {
   return <Box>
-    <Stack direction="row" spacing={16}>
+    <Stack direction="row" spacing={16} justifyContent="space-between" >
+      <Stack direction="column" spacing={0} flexGrow={1}>
+        <DataDiagramController />
+        <Stack direction="row" spacing={0}>
+          <Button variant="contained" disabled={true}>Reset limits</Button>
+        </Stack>
+      </Stack>
 
-      <Stack spacing={4}>
+      <Stack spacing={4} >
         <Stack spacing={2}>
-          <Stack direction="row" justifyContent="space-between">
-            <Typography variant='h4'>
-              Data
-            </Typography>
-            <Button variant="contained" disabled={true}>Reset</Button>
-          </Stack>
-          <DataDiagramController />
+          <Typography variant='h4'>
+            Commands
+          </Typography>
+          <ValvePanel />
         </Stack>
         <Stack spacing={2}>
           <Typography variant='h4'>
@@ -28,13 +31,6 @@ const MainPage = () => {
             <RunPanel />
           </RunProvider>
         </Stack>
-      </Stack>
-
-      <Stack spacing={2}>
-        <Typography variant='h4'>
-          Commands
-        </Typography>
-        <ValvePanel />
       </Stack>
     </Stack>
   </Box>;

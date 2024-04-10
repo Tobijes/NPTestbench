@@ -2,8 +2,8 @@
 <!-- Created with Inkscape (http://www.inkscape.org/) -->
 
 <svg
-   width="800pt"
-   height="600pt"
+   width="100%"
+   style="height: calc(100vh - 180px);"
    viewBox="0 0 282.22222 211.66666"
    version="1.1"
    id="svg1"
