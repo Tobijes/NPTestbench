@@ -6,6 +6,4 @@ public class Channel {
     public ushort Address { get; set; }
     public bool Writable { get; set; }
     public DeviceDataType DataType { get; set;}
-    // Relations
-    public ICollection<DeviceChannel> DeviceChannels { get; set; }
 }
