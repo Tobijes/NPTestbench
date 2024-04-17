@@ -147,18 +147,33 @@ public class CommunicationService
     }
 
     private byte[] ConvertUShortsToBytes(ushort[] ushorts)
-    {
+    {   
+        // The individual ushorts with .GetBytes() get correct endianness
+        // Windows is little-endian, Linux is big-endian
+        if (ushorts.Length == 1) {
+            return BitConverter.GetBytes(ushorts[0]);
+        }
+
         byte[] bytes = new byte[ushorts.Length * 2];
+
+        if (BitConverter.IsLittleEndian) 
+        {
+            // Flip endianess for pairs of bytes
+            Array.Reverse(ushorts);
+        }
         for (int i = 0; i < ushorts.Length; i++)
         {
             var bs = BitConverter.GetBytes(ushorts[i]);
+
             bytes[i * 2] = bs[0];
             bytes[i * 2 + 1] = bs[1];
         }
         if (BitConverter.IsLittleEndian)
         {
+            // Flip endianess for all 4 bytes
             Array.Reverse(bytes);
         }
+        
         return bytes;
     }
 
