@@ -12,7 +12,7 @@ public enum ConfigurationTemplateType
 }
 
 // Intermediate objects to ease manual writing
-public record ChannelTemplate(string Name, ushort Address, DeviceDataType DataType);
+public record ChannelTemplate(string Name, ushort Address, bool Writable, DeviceDataType DataType);
 public record DeviceTemplate(string Name, string? DrawingId, string CalibrationFunctionName);
 public record DeviceChannelTemplate(string DeviceName, string ChannelName, bool IsRead, int Order);
 public record ParameterTemplate(string Name, string Value);
@@ -28,18 +28,18 @@ public class ConfigurationTemplateFactory
         };
 
     static ChannelTemplate[] DefaultChannels = [
-        new("AIN4", 8, DeviceDataType.Float32),
-        new("AIN5", 10, DeviceDataType.Float32),
-        new("AIN6", 12, DeviceDataType.Float32),
-        new("AIN7", 14, DeviceDataType.Float32),
-        new("AIN8", 16, DeviceDataType.Float32),
-        new("AIN9", 18, DeviceDataType.Float32),
-        new("AIN10", 20, DeviceDataType.Float32),
-        new("AIN11", 22, DeviceDataType.Float32),
-        new("AIN12", 24, DeviceDataType.Float32),
-        new("AIN13", 26, DeviceDataType.Float32),
-        new("CIO2", 2018, DeviceDataType.UInt16),
-        new("CIO3", 2019, DeviceDataType.UInt16),
+        new("AIN4", 8, false, DeviceDataType.Float32),
+        new("AIN5", 10, false, DeviceDataType.Float32),
+        new("AIN6", 12, false, DeviceDataType.Float32),
+        new("AIN7", 14, false, DeviceDataType.Float32),
+        new("AIN8", 16, false, DeviceDataType.Float32),
+        new("AIN9", 18, false, DeviceDataType.Float32),
+        new("AIN10", 20, false, DeviceDataType.Float32),
+        new("AIN11", 22, false, DeviceDataType.Float32),
+        new("AIN12", 24, false, DeviceDataType.Float32),
+        new("AIN13", 26, false, DeviceDataType.Float32),
+        new("CIO2", 2018, true, DeviceDataType.UInt16),
+        new("CIO3", 2019, true, DeviceDataType.UInt16),
     ];
 
     static DeviceTemplate[] DefaultDevices = [
@@ -192,7 +192,8 @@ public class ConfigurationTemplateFactory
         {
             Name = template.Name,
             Address = template.Address,
-            DataType = template.DataType
+            DataType = template.DataType,
+            Writable = template.Writable
         }).ToArray();
     }
 
