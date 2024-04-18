@@ -40,7 +40,7 @@ public class DataService : BackgroundService, IDisposable
 
     public async Task ReadAll()
     {   
-        Dictionary<int,float> values;
+        Dictionary<int,ByteValue> values;
         try {
             values = await _communicationService.ReadDevices(devices);
         } catch(InvalidOperationException) {
@@ -89,13 +89,13 @@ public class DataService : BackgroundService, IDisposable
             DateTime timestamp = DateTime.Now;
             using (var context = new DataContext())
             {
-                foreach (KeyValuePair<int, float> kv in values) {
+                foreach (KeyValuePair<int, ByteValue> kv in values) {
                     var measurement = new Measurement()
                     {
                         ChannelId = kv.Key,
                         RunId = (int)_runId,
                         Timestamp = timestamp,
-                        Value = kv.Value
+                        Value = kv.Value.AsFloat(),
                     };
                     context.Measurements.Add(measurement);
                 }

@@ -64,8 +64,8 @@ public class ConfigurationTemplateFactory
             // new("PT-VC-1", "PT-VC-1", CalibrationFunctions.CALIBRATE_PRESSURE),
 
             // Read-write devices
-            new("VS-S1-1", null, CalibrationFunctions.CALIBRATE_SIMPLE),
-            new("VS-S2-1", null, CalibrationFunctions.CALIBRATE_SIMPLE),
+            new("VS-S1-1", null, CalibrationFunctions.CALIBRATE_BITMASK_0100),
+            new("VS-S2-1", null, CalibrationFunctions.CALIBRATE_BITMASK_1000),
         ];
 
     static DeviceChannelTemplate[] DefaultDeviceChannels = [
@@ -79,7 +79,7 @@ public class ConfigurationTemplateFactory
 
         new("PT-S1-2", "AIN12", true, 0),
 
-        new("VS-S1-1", "CIO2", true, 0),
+        new("VS-S1-1", "CIOSTATE", true, 0),
         new("VS-S1-1", "CIO2", false, 0),
 
         new("TF-S2-1", "AIN5", true, 0),
@@ -92,7 +92,7 @@ public class ConfigurationTemplateFactory
 
         new("PT-S2-2", "AIN10", true, 0),
 
-        new("VS-S2-1", "CIO3", true, 0),
+        new("VS-S2-1", "CIOSTATE", true, 0),
         new("VS-S2-1", "CIO3", false, 0),
         
         new("TF-TA-1", "AIN4", true, 0),

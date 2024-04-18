@@ -67,22 +67,9 @@ public class CommunicationService
         _ => throw new NotImplementedException(),
     };
 
-    public Task<float> ReadChannel(Channel channel)
+    public Task<ByteValue> ReadChannel(Channel channel)
     {
-        if (channel.DataType == DeviceDataType.Bit)
-        {
-            if (channel.Writable)
-            {
-                return ReadCoil(channel);
-            }
-            else
-            {
-                return ReadDiscreteInput(channel);
-            }
-        }
-        else
-        {
-            if (channel.Writable)
+         if (channel.Writable)
             {
                 return ReadHoldingRegister(channel);
             }
@@ -90,12 +77,11 @@ public class CommunicationService
             {
                 return ReadInputRegister(channel);
             }
-        }
     }
 
-    public async Task<Dictionary<int, float>> ReadDevices(Device[] devices)
+    public async Task<Dictionary<int, ByteValue>> ReadDevices(Device[] devices)
     {
-        var tasks = new Dictionary<int, Task<float>>();
+        var tasks = new Dictionary<int, Task<ByteValue>>();
         for (int i = 0; i < devices.Length; i++)
         {
             var channels = devices[i].DeviceChannels
@@ -115,12 +101,12 @@ public class CommunicationService
         // Wait concurrently
         await Task.WhenAll(tasks.Values);
 
-        var results = new Dictionary<int, float>();
+        var results = new Dictionary<int, ByteValue>();
         Random rnd = new Random();
 
-        foreach (KeyValuePair<int, Task<float>> kv in tasks)
+        foreach (KeyValuePair<int, Task<ByteValue>> kv in tasks)
         {
-            float result = await kv.Value;
+            var result = await kv.Value;
          //   result *= rnd.Next(1, 15); // Add noise
             results.Add(kv.Key, result);
         }
@@ -177,36 +163,20 @@ public class CommunicationService
         return bytes;
     }
 
-    private async Task<float> ReadCoil(Channel channel)
-    {
-        ushort numberOfPoints = NumberOfWords(channel.DataType);
-        var bits = await _master.ReadCoilsAsync(1, channel.Address, numberOfPoints);
-        return bits[0] ? 1 : 0;
-    }
 
-    private async Task<float> ReadDiscreteInput(Channel channel)
-    {
-        ushort numberOfPoints = NumberOfWords(channel.DataType);
-        var bits = await _master.ReadInputsAsync(1, channel.Address, numberOfPoints);
-        return bits[0] ? 1 : 0;
-    }
-
-    private async Task<float> ReadInputRegister(Channel channel)
+    private async Task<ByteValue> ReadInputRegister(Channel channel)
     {
         ushort numberOfPoints = NumberOfWords(channel.DataType);
         var words = await _master.ReadInputRegistersAsync(1, channel.Address, numberOfPoints);
         var bytes = ConvertUShortsToBytes(words);
-        float value = ConvertBytes(channel.DataType, bytes);
-        return value;
+        return new ByteValue(channel.DataType, bytes);
     }
-
-    private async Task<float> ReadHoldingRegister(Channel device)
+    private async Task<ByteValue> ReadHoldingRegister(Channel channel)
     {
-        ushort numberOfPoints = NumberOfWords(device.DataType);
-        var words = await _master.ReadHoldingRegistersAsync(1, device.Address, numberOfPoints);
+        ushort numberOfPoints = NumberOfWords(channel.DataType);
+        var words = await _master.ReadHoldingRegistersAsync(1, channel.Address, numberOfPoints);
         var bytes = ConvertUShortsToBytes(words);
-        float value = ConvertBytes(device.DataType, bytes);
-        return value;
+        return new ByteValue(channel.DataType, bytes);
     }
 
 

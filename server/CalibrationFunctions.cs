@@ -5,15 +5,21 @@ public class CalibrationFunctions {
     public const string CALIBRATE_PRESSURE_21 = "CALIBRATE_PRESSURE_21";
     public const string CALIBRATE_TEMPERATURE = "CALIBRATE_TEMPERATURE";
     public const string CALIBRATE_TEMPERATURE_GND = "CALIBRATE_TEMPERATURE_GND";
-    public const string CALIBRATE_SIMPLE = "CALIBRATE_SIMPLE";
+    public const string CALIBRATE_BITMASK_0001 = "CALIBRATE_BITMASK_0000";
+    public const string CALIBRATE_BITMASK_0010 = "CALIBRATE_BITMASK_0010";
+    public const string CALIBRATE_BITMASK_0100 = "CALIBRATE_BITMASK_0100";
+    public const string CALIBRATE_BITMASK_1000 = "CALIBRATE_BITMASK_1000";
 
-    public static float Calibrate(string calibrationFunctionName, float[] values) => calibrationFunctionName switch {
-        CALIBRATE_PRESSURE_1 => CalibratePressure1(values[0]),
-        CALIBRATE_PRESSURE_11 => CalibratePressure11(values[0]),
-        CALIBRATE_PRESSURE_21 => CalibratePressure21(values[0]),
-        CALIBRATE_TEMPERATURE => CalibrateTemperature(values[0], values[1]),
-        CALIBRATE_TEMPERATURE_GND => CalibrateTemperatureGnd(values[0]),
-        CALIBRATE_SIMPLE => CalibrateSimple(values[0]),
+    public static float Calibrate(string calibrationFunctionName, ByteValue[] values) => calibrationFunctionName switch {
+        CALIBRATE_PRESSURE_1 => CalibratePressure1(values[0].AsFloat()),
+        CALIBRATE_PRESSURE_11 => CalibratePressure11(values[0].AsFloat()),
+        CALIBRATE_PRESSURE_21 => CalibratePressure21(values[0].AsFloat()),
+        CALIBRATE_TEMPERATURE => CalibrateTemperature(values[0].AsFloat(), values[1].AsFloat()),
+        CALIBRATE_TEMPERATURE_GND => CalibrateTemperatureGnd(values[0].AsFloat()),
+        CALIBRATE_BITMASK_0001 => CalibrateBitmask(0b00000001, values[0].AsUshort()),
+        CALIBRATE_BITMASK_0010 => CalibrateBitmask(0b00000010, values[0].AsUshort()),
+        CALIBRATE_BITMASK_0100 => CalibrateBitmask(0b00000100, values[0].AsUshort()),
+        CALIBRATE_BITMASK_1000 => CalibrateBitmask(0b00001000, values[0].AsUshort()),
         _ => throw new NotImplementedException()
     };
     
@@ -44,7 +50,7 @@ public class CalibrationFunctions {
         return ((a - 1) / (5-1)) * 21;
     }
 
-    public static float CalibrateSimple(float a) {
-        return a;
+    public static float CalibrateBitmask(byte mask, ushort a) {
+        return (ushort) (a & mask) > 0 ? 1.0f : 0.0f;
     }
 }
