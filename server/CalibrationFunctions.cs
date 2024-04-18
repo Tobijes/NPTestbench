@@ -24,7 +24,7 @@ public class CalibrationFunctions {
     public static float CalibrateTemperature(float a, float b) {
         // Resistance: Voltagedifference a-b over contant amperage 200 mA. Ohm's Law: r=u/i
         float[] c = [-245.19f, 2.5293f, -0.066046f, 4.0422E-3f, -2.0697E-6f, -0.025422f, 1.6883E-3f, -1.3601E-6f];
-        float R = (a-b) / 0.2f;
+        float R = Math.Abs(a-b) / 0.02f;
         float T = R * (c[1] + R * (c[2] + R * (c[3] + c[4] * R)))  / (1 + R*(c[5] + R*(c[6] + c[7] * R)));
         return T;
     }

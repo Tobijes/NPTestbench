@@ -56,17 +56,7 @@ public class DataService : BackgroundService, IDisposable
         // Compute device values
         foreach (var device in devices) 
         {
-            if (!_dataState.DeviceStates.ContainsKey(device.Id))
-            {
-                _dataState.DeviceStates.Add(device.Id, new DataNotifier.DeviceState()
-                {
-                    Id = device.Id,
-                    Name = device.Name,
-                    DrawingId = device.DrawingID,
-                });
-            }
-
-            var channelValues = device.DeviceChannels
+                var channelValues = device.DeviceChannels
                 .Where(dc => dc.IsRead) // Select only read channels
                 .OrderBy(dc => dc.Order) // Sort by the order
                 .Select(dc => dc.Channel) // Jump to the channel
@@ -74,6 +64,20 @@ public class DataService : BackgroundService, IDisposable
                 .ToArray();
 
             var value = CalibrationFunctions.Calibrate(device.CalibrationFunctionName, channelValues);
+            
+            if (!_dataState.DeviceStates.ContainsKey(device.Id))
+            {
+                _dataState.DeviceStates.Add(device.Id, new DataNotifier.DeviceState()
+                {
+                    Id = device.Id,
+                    Name = device.Name,
+                    DrawingId = device.DrawingID,
+                    Value = value,
+                    ValueRunMaximum = value,
+                    ValueRunMinimum = value
+                });
+            }
+
             _dataState.DeviceStates[device.Id].Value = value;
             _dataState.DeviceStates[device.Id].ValueRunMaximum = Math.Max(_dataState.DeviceStates[device.Id].ValueRunMaximum, value);
             _dataState.DeviceStates[device.Id].ValueRunMinimum = Math.Min(_dataState.DeviceStates[device.Id].ValueRunMinimum, value);

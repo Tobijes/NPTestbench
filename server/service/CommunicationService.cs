@@ -24,8 +24,8 @@ public class CommunicationService
     {
         try
         {
-            var ip ="127.0.0.1";
-            var port = 5020;
+            var ip = "192.168.2.180";
+            var port = 502;
             _client = new TcpClient(ip, port);
             var factory = new ModbusFactory();
             _master = factory.CreateMaster(_client);
@@ -121,7 +121,7 @@ public class CommunicationService
         foreach (KeyValuePair<int, Task<float>> kv in tasks)
         {
             float result = await kv.Value;
-            result *= rnd.Next(1, 15); // Add noise
+         //   result *= rnd.Next(1, 15); // Add noise
             results.Add(kv.Key, result);
         }
 
@@ -156,17 +156,17 @@ public class CommunicationService
 
         byte[] bytes = new byte[ushorts.Length * 2];
 
-        if (BitConverter.IsLittleEndian) 
+        /*if (BitConverter.IsLittleEndian) 
         {
             // Flip endianess for pairs of bytes
             Array.Reverse(ushorts);
-        }
+        }*/
         for (int i = 0; i < ushorts.Length; i++)
         {
             var bs = BitConverter.GetBytes(ushorts[i]);
 
-            bytes[i * 2] = bs[0];
-            bytes[i * 2 + 1] = bs[1];
+            bytes[i * 2] = bs[1];
+            bytes[i * 2 + 1] = bs[0];
         }
         if (BitConverter.IsLittleEndian)
         {

@@ -40,6 +40,7 @@ public class ConfigurationTemplateFactory
         new("AIN13", 26, false, DeviceDataType.Float32),
         new("CIO2", 2018, true, DeviceDataType.UInt16),
         new("CIO3", 2019, true, DeviceDataType.UInt16),
+        new("CIOSTATE", 2502, false, DeviceDataType.UInt16)
     ];
 
     static DeviceTemplate[] DefaultDevices = [

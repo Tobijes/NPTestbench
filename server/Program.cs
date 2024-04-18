@@ -56,6 +56,4 @@ app.MapControllers();
 
 app.UseCors("CorsPolicy");
 
-app.UseHttpsRedirection();
-
 app.Run();
