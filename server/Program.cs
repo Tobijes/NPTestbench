@@ -15,12 +15,17 @@ builder.Services.AddSingleton<CommunicationService>();
 builder.Services.AddSingleton<DataContext>();
 builder.Services.AddSingleton<DataService>();
 builder.Services.AddHostedService<DataService>(p => p.GetRequiredService<DataService>());
-// Add CORS services
+builder.WebHost.ConfigureKestrel(serverOptions =>
+{
+    serverOptions.ListenAnyIP(5000);
+
+});
+//CORS services
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("CorsPolicy", policy =>
     {
-        policy.WithOrigins("http://localhost:5173", "http://127.0.0.1:5173") // Replace with your React app's origin
+        policy.SetIsOriginAllowed(origin => true) // allow all origin
               .AllowAnyMethod()
               .AllowAnyHeader()
               .AllowCredentials(); // Necessary for SignalR
@@ -42,7 +47,7 @@ using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
     var context = services.GetRequiredService<DataContext>();
-    context.Database.EnsureCreated(); 
+    context.Database.EnsureCreated();
 }
 app.UseSwagger();
 app.UseSwaggerUI(options =>
