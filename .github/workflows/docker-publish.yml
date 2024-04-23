@@ -27,7 +27,7 @@ jobs:
       uses: docker/build-push-action@v3
       with:
         context: ./client
-        file: ./Dockerfile
+        file: Dockerfile
         push: true
         tags: ghcr.io/tobijes/nptestbenchclient:latest 
     
@@ -35,7 +35,7 @@ jobs:
       uses: docker/build-push-action@v3
       with:
         context: ./server
-        file: ./Dockerfile
+        file: Dockerfile
         push: true
         tags: ghcr.io/tobijes/nptestbenchclient:latest
       
