@@ -26,7 +26,7 @@ jobs:
     - name: Build and push Docker client image
       uses: docker/build-push-action@v3
       with:
-        context: client
+        context: "{{defaultContext}}:client"
         file: ./Dockerfile
         push: true
         tags: ghcr.io/tobijes/nptestbenchclient:latest 
@@ -34,7 +34,7 @@ jobs:
     - name: Build and push Docker server image
       uses: docker/build-push-action@v3
       with:
-        context: server
+        context: "{{defaultContext}}:server"
         file: ./Dockerfile
         push: true
         tags: ghcr.io/tobijes/nptestbenchclient:latest
