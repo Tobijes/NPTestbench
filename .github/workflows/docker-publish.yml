@@ -26,16 +26,16 @@ jobs:
     - name: Build and push Docker client image
       uses: docker/build-push-action@v3
       with:
-        context: .
-        file: ./client/Dockerfile
+        context: ./client
+        file: ./Dockerfile
         push: true
         tags: ghcr.io/tobijes/nptestbenchclient:latest 
     
     - name: Build and push Docker server image
       uses: docker/build-push-action@v3
       with:
-        context: .
-        file: ./server/Dockerfile
+        context: ./server
+        file: ./Dockerfile
         push: true
         tags: ghcr.io/tobijes/nptestbenchclient:latest
       
